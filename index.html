@@ -8,46 +8,27 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
         .arabic-text { font-family: 'IBM Plex Sans Arabic', sans-serif; }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-8px); }
-          75% { transform: translateX(8px); }
-        }
+        button { touch-action: manipulation; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
         .shake { animation: shake 0.2s ease-in-out 0s 2; }
-        @keyframes float-up {
-          0% { opacity: 0; transform: translateY(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translateY(-80px); }
-        }
+        @keyframes float-up { 0%{opacity:0;transform:translateY(0)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-80px)} }
         .xp-float { animation: float-up 1.3s ease-out forwards; pointer-events: none; }
-        @keyframes pulse-glow {
-          0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
-          70% { box-shadow: 0 0 0 12px rgba(22, 163, 74, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
-        }
+        @keyframes pulse-glow { 0%{box-shadow:0 0 0 0 rgba(22,163,74,0.5)} 70%{box-shadow:0 0 0 12px rgba(22,163,74,0)} 100%{box-shadow:0 0 0 0 rgba(22,163,74,0)} }
         .correct-glow { animation: pulse-glow 1s infinite; }
-        .fire-timer {
-          background: linear-gradient(90deg, #16a34a, #ef4444, #f97316);
-          background-size: 300% 300%;
-          animation: gradient-move 1.5s ease infinite;
-        }
-        @keyframes gradient-move {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .shadow-boss { box-shadow: 0 10px 30px -8px rgba(22, 163, 74, 0.15); }
-        .transition-boss { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .reason-box {
-          animation: reason-slide 0.4s ease-out forwards;
-        }
-        @keyframes reason-slide {
-          0% { opacity: 0; transform: translateY(10px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        /* Safe area for notched phones */
+        .fire-timer { background:linear-gradient(90deg,#16a34a,#ef4444,#f97316); background-size:300% 300%; animation:gradient-move 1.5s ease infinite; }
+        @keyframes gradient-move { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .shadow-boss { box-shadow:0 10px 30px -8px rgba(22,163,74,0.15); }
+        .transition-boss { transition:all 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .reason-box { animation:reason-slide 0.4s ease-out forwards; }
+        @keyframes reason-slide { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes next-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+        .next-btn-pulse { animation: next-pulse 1.5s ease-in-out infinite; }
+        @keyframes bell-ring { 0%{transform:rotate(0)} 10%{transform:rotate(15deg)} 20%{transform:rotate(-15deg)} 30%{transform:rotate(10deg)} 40%{transform:rotate(-10deg)} 50%{transform:rotate(0)} 100%{transform:rotate(0)} }
+        .bell-anim { animation: bell-ring 2s ease-in-out infinite; }
+        @keyframes notif-slide { 0%{opacity:0;transform:translateY(-20px)} 100%{opacity:1;transform:translateY(0)} }
+        .notif-slide { animation: notif-slide 0.5s ease-out forwards; }
         .safe-top { padding-top: env(safe-area-inset-top); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
@@ -70,8 +51,8 @@
         import React, { useState, useEffect, useRef } from 'react';
         import ReactDOM from 'react-dom/client';
         import {
-          ChevronRight, Trophy, ArrowLeft, Stethoscope, Sparkles, Award,
-          BookOpen, Zap, Flame, Shield, Clock, Skull, Star, Brain, Ghost, Volume2, RefreshCw, Info
+          ChevronRight, Trophy, ArrowLeft, Stethoscope, Award,
+          Zap, Flame, Clock, Skull, Star, Brain, Ghost, Volume2, RefreshCw, Info, ArrowRight, X, ExternalLink, Bell, ChevronLeft
         } from 'lucide-react';
 
         const shuffleArray = (array) => {
@@ -97,9 +78,7 @@
             let newCorrectAnswer = '';
             const finalOptions = shuffledParsed.map((opt, index) => {
               const newLetter = letters[index];
-              if (opt.originalLetter === q.answer) {
-                newCorrectAnswer = newLetter;
-              }
+              if (opt.originalLetter === q.answer) newCorrectAnswer = newLetter;
               return newLetter + ') ' + opt.text;
             });
             return { ...q, options: finalOptions, answer: newCorrectAnswer };
@@ -107,13 +86,19 @@
           return { ...quiz, questions: newQuestions };
         };
 
+        const VIDEO_DATA = [
+          { num: '1', title: 'Stereolithography (SLA)', url: 'https://youtu.be/8a2xNaAkvLo?si=PLps3J0mSbIMZkbX', icon: '💡' },
+          { num: '2', title: 'PolyJet / MultiJet Printing', url: 'https://www.3dsystems.com/video/mjp-3d-printing-process-1', icon: '🎨' },
+          { num: '3', title: 'Inkjet Printing (Binder Jetting)', url: 'https://youtu.be/gwHcDjeOIxc?si=5xcSEQxEzupj1RH8', icon: '🖨️' },
+          { num: '4', title: 'Powder Bed Fusion (PBF)', url: 'https://youtu.be/ySMi8WVjZzE?si=6XwJD43f6Jm_Glhr', icon: '🔥' },
+          { num: '5', title: 'Fused Deposition Modeling (FDM)', url: 'https://youtu.be/PcNCyHSKK1w?si=BksN-cDoIkvFluOG', icon: '🧵' }
+        ];
+
         const QUIZZES = [
           {
-            id: 'q1',
-            title: 'Investment & Lost Wax',
+            id: 'q1', title: 'Investment & Lost Wax',
             description: 'Investment materials, silica polymorphs, binders, and the lost wax technique.',
-            icon: '🔥',
-            isExternal: false,
+            icon: '🔥', isExternal: false,
             questions: [
               { id:'1-1', text:'What is the primary purpose of investment materials in dentistry?', options:['A) To create the wax pattern','B) To form a mold for casting metal','C) To melt the alloy directly','D) To polish the final restoration'], answer:'B', reason:'Investment materials are used to create a mold by the lost wax technique into which metal is cast.' },
               { id:'1-2', text:'In the lost wax technique, what happens immediately after the wax pattern is surrounded by investment?', options:['A) The wax is burned out','B) The investment material sets','C) The metal is cast','D) The pattern is cooled'], answer:'B', reason:'After investing, the material is allowed to set (harden) around the wax before heating.' },
@@ -168,11 +153,9 @@
             ]
           },
           {
-            id: 'q2',
-            title: 'Casting Techniques',
+            id: 'q2', title: 'Casting Techniques',
             description: 'Casting procedures, flame zones, sprue design, and pressure dynamics.',
-            icon: '⚙️',
-            isExternal: false,
+            icon: '⚙️', isExternal: false,
             questions: [
               { id:'2-1', text:'What is the direct outcome of the casting process?', options:['A) Wax pattern hardening','B) Investment setting','C) Metal restoration forming','D) Mold cracking'], answer:'C', reason:'Molten alloy fills the mold to produce the final metal restoration.' },
               { id:'2-2', text:'Which factor directly requires a heat source in casting?', options:['A) Wax elimination','B) Alloy melting','C) Investment expansion','D) Sprue attachment'], answer:'B', reason:'The alloy must be liquefied before being forced into the mold.' },
@@ -207,11 +190,9 @@
             ]
           },
           {
-            id: 'q3',
-            title: 'Casting Defects',
+            id: 'q3', title: 'Casting Defects',
             description: 'Surface roughness, nodules, fins, porosity, and defect prevention strategies.',
-            icon: '🔍',
-            isExternal: false,
+            icon: '🔍', isExternal: false,
             questions: [
               { id:'3-1', text:'Which water/powder ratio change directly increases surface roughness?', options:['A) Decreasing the ratio slightly','B) Increasing the ratio excessively','C) Maintaining the manufacturer\'s ratio','D) Using distilled water only'], answer:'B', reason:'Excess water thins the investment, preventing fine detail reproduction.' },
               { id:'3-2', text:'What is the primary mechanism of sulfur compound contamination?', options:['A) Absorption through the sprue','B) Thermal disintegration of investment','C) Reaction with water vapor','D) Diffusion from the casting ring'], answer:'B', reason:'Excessive heat breaks down calcium sulphate, releasing SO₂ and SO₃.' },
@@ -256,11 +237,9 @@
             ]
           },
           {
-            id: 'q4',
-            title: 'Milling & Subtractive',
+            id: 'q4', title: 'Milling & Subtractive',
             description: 'CAD/CAM systems, milling axes, bur selection, and digital workflows.',
-            icon: '🏭',
-            isExternal: false,
+            icon: '🏭', isExternal: false,
             questions: [
               { id:'4-1', text:'What is the fundamental principle of subtractive manufacturing?', options:['A) Adding material layer by layer','B) Removing material from a solid block','C) Melting and pouring into a mold','D) Pressing powder into shape'], answer:'B', reason:'Subtractive manufacturing cuts away material from a larger block to create the final shape.' },
               { id:'4-2', text:'Which CAD/CAM system allows components from different companies?', options:['A) Closed system','B) Open system','C) Hybrid system','D) Integrated system'], answer:'B', reason:'Open systems permit flexibility by using scanners, software, and mills from various manufacturers.' },
@@ -305,11 +284,9 @@
             ]
           },
           {
-            id: 'q5',
-            title: 'Dental 3D Printing',
+            id: 'q5', title: 'Dental 3D Printing',
             description: 'Additive manufacturing technologies, clinical applications, and post-processing.',
-            icon: '🖨️',
-            isExternal: false,
+            icon: '🖨️', isExternal: false,
             questions: [
               { id:'5-1', text:'Which step in the 3D printing workflow is responsible for converting a 3D mesh into a series of 2D cross-sections?', options:['A) Digital Impression','B) Post-Curing','C) Slicing','D) CAD Designing'], answer:'C', reason:'Slicing software "cuts" the digital model into thin horizontal layers, creating specific path instructions for the printer.' },
               { id:'5-2', text:'In terms of material economy, why is 3D printing often preferred over milling?', options:['A) It is an "Additive" process, using only the material required for the object','B) It uses cheaper, non-medical grade plastics','C) It requires no electricity to operate','D) It is a "Subtractive" process that recycles all dust automatically'], answer:'A', reason:'Unlike milling, which carves an object out of a larger block (creating waste), 3D printing builds from nothing, reducing material loss.' },
@@ -355,179 +332,178 @@
           }
         ];
 
+        const TIMER_TOTAL = 90;
+
         const App = () => {
           const [view, setView] = useState('home');
           const [activeQuiz, setActiveQuiz] = useState(null);
           const [currentIndex, setCurrentIndex] = useState(0);
+          const [questionResults, setQuestionResults] = useState({});
           const [resumeModal, setResumeModal] = useState(null);
           const [score, setScore] = useState(0);
-          const [xp, setXp] = useState(() => {
-            try { return Number(localStorage.getItem('dental_xp2')) || 0; } catch { return 0; }
-          });
+          const [xp, setXp] = useState(() => { try { return Number(localStorage.getItem('dental_xp3')) || 0; } catch { return 0; } });
           const [streak, setStreak] = useState(0);
           const [maxStreak, setMaxStreak] = useState(0);
-          const [powerUps, setPowerUps] = useState({ hints: 3, freezes: 2 });
+          const [powerUps, setPowerUps] = useState({ hints: 3, freezes: 20 });
           const [isFrozen, setIsFrozen] = useState(false);
           const [eliminatedIndices, setEliminatedIndices] = useState([]);
-          const [timeLeft, setTimeLeft] = useState(30);
+          const [timeLeft, setTimeLeft] = useState(TIMER_TOTAL);
           const timerRef = useRef(null);
           const [feedback, setFeedback] = useState(null);
           const [xpGain, setXpGain] = useState(null);
           const [typedMessage, setTypedMessage] = useState('');
           const [messageToast, setMessageToast] = useState(null);
           const [showBoss, setShowBoss] = useState(false);
-          const [showReason, setShowReason] = useState(false);
+          const [selectedLetter, setSelectedLetter] = useState(null);
+          const [videoModal, setVideoModal] = useState(false);
 
           const welcomeText = "جميع الأسئلة تم إنشاؤها بواسطة الذكاء الاصطناعي... ماتنسوش تدعوا لـ";
 
-          useEffect(() => {
-            let i = 0;
-            const interval = setInterval(() => {
-              setTypedMessage(welcomeText.slice(0, i));
-              i++;
-              if (i > welcomeText.length) { clearInterval(interval); setShowBoss(true); }
-            }, 40);
-            return () => clearInterval(interval);
-          }, []);
+          const getNextUnanswered = () => Object.keys(questionResults).length;
+          const isViewingCurrent = () => currentIndex === getNextUnanswered();
+          const isAnswered = (idx) => questionResults[idx] !== undefined;
+
+          useEffect(() => { let i = 0; const interval = setInterval(() => { setTypedMessage(welcomeText.slice(0, i)); i++; if (i > welcomeText.length) { clearInterval(interval); setShowBoss(true); } }, 40); return () => clearInterval(interval); }, []);
+          useEffect(() => { try { localStorage.setItem('dental_xp3', xp.toString()); } catch (e) {} }, [xp]);
 
           useEffect(() => {
-            try { localStorage.setItem('dental_xp2', xp.toString()); } catch (e) {}
-          }, [xp]);
-
-          useEffect(() => {
-            if (view === 'quiz' && activeQuiz && feedback === null) {
-              const sessionState = { quizId: activeQuiz.id, currentIndex, score, streak, maxStreak, powerUps, questions: activeQuiz.questions };
+            if (view === 'quiz' && activeQuiz) {
+              const sessionState = { quizId: activeQuiz.id, currentIndex, score, streak, maxStreak, powerUps, questionResults, questions: activeQuiz.questions };
               localStorage.setItem('session_' + activeQuiz.id, JSON.stringify(sessionState));
             }
-          }, [currentIndex, score, streak, activeQuiz, view, feedback]);
+          }, [currentIndex, score, streak, activeQuiz, view, questionResults]);
 
           useEffect(() => {
-            if (view === 'quiz' && !isFrozen && feedback === null) {
+            if (view === 'quiz' && activeQuiz && !isFrozen && feedback === null && isViewingCurrent()) {
               timerRef.current = window.setInterval(() => {
-                setTimeLeft((prev) => {
-                  if (prev <= 1) { handleTimeOut(); return 30; }
-                  return prev - 1;
-                });
+                setTimeLeft((prev) => { if (prev <= 1) { handleTimeOut(); return TIMER_TOTAL; } return prev - 1; });
               }, 1000);
             } else { if (timerRef.current) clearInterval(timerRef.current); }
             return () => { if (timerRef.current) clearInterval(timerRef.current); };
-          }, [view, currentIndex, isFrozen, feedback]);
+          }, [view, currentIndex, isFrozen, feedback, questionResults]);
 
           const handleTimeOut = () => {
-            setFeedback('wrong');
-            setShowReason(true);
+            const nIdx = getNextUnanswered();
+            if (currentIndex !== nIdx) return;
+            setQuestionResults(prev => ({ ...prev, [nIdx]: { selected: null, feedback: 'timeout' } }));
+            setFeedback('timeout');
+            setSelectedLetter(null);
             setStreak(0);
             setMessageToast("Time's up! ⏳");
-            setTimeout(() => { setMessageToast(null); setFeedback(null); setShowReason(false); nextQuestion(); }, 3000);
+            setTimeout(() => setMessageToast(null), 2000);
           };
 
           const handleStartQuiz = (rawQuiz) => {
             if (rawQuiz.isExternal) { window.open(rawQuiz.link, '_blank'); return; }
             const saved = localStorage.getItem('session_' + rawQuiz.id);
-            if (saved) {
-              const parsedState = JSON.parse(saved);
-              setResumeModal({ rawQuiz, state: parsedState });
-            } else {
-              const shuffledQuiz = getShuffledQuiz(rawQuiz);
-              initiateQuiz(shuffledQuiz, 0, 0, 0, 0, { hints: 3, freezes: 2 });
-            }
+            if (saved) { const p = JSON.parse(saved); setResumeModal({ rawQuiz, state: p }); }
+            else { const s = getShuffledQuiz(rawQuiz); initiateQuiz(s, 0, 0, 0, 0, { hints: 3, freezes: 20 }, {}); }
           };
 
-          const initiateQuiz = (shuffledQuiz, idx, sc, str, mstr, pUps) => {
-            setActiveQuiz(shuffledQuiz);
-            setCurrentIndex(idx);
-            setScore(sc);
-            setStreak(str);
-            setMaxStreak(mstr);
-            setPowerUps(pUps);
-            setTimeLeft(30);
-            setFeedback(null);
-            setShowReason(false);
-            setEliminatedIndices([]);
-            setResumeModal(null);
-            setView('quiz');
+          const initiateQuiz = (quiz, idx, sc, str, mstr, pUps, qResults) => {
+            setActiveQuiz(quiz); setCurrentIndex(idx); setScore(sc); setStreak(str); setMaxStreak(mstr);
+            setPowerUps(pUps); setTimeLeft(TIMER_TOTAL); setFeedback(null); setSelectedLetter(null);
+            setEliminatedIndices([]); setIsFrozen(false); setResumeModal(null);
+            setQuestionResults(qResults || {}); setView('quiz');
           };
 
           const clearSession = (id) => { localStorage.removeItem('session_' + id); };
 
           const handleSelectAnswer = (optionLetter) => {
-            if (feedback) return;
-            const correct = activeQuiz && activeQuiz.questions[currentIndex] && activeQuiz.questions[currentIndex].answer === optionLetter;
-            setShowReason(true);
+            if (feedback || !isViewingCurrent()) return;
+            const nIdx = getNextUnanswered();
+            const correct = activeQuiz.questions[nIdx].answer === optionLetter;
+            setSelectedLetter(optionLetter);
             if (correct) {
-              setFeedback('correct');
-              setScore((s) => s + 1);
-              const newStreak = streak + 1;
-              setStreak(newStreak);
-              setMaxStreak(Math.max(maxStreak, newStreak));
-              const gain = 20 + (newStreak * 5);
-              setXpGain(gain);
-              setXp((prev) => prev + gain);
-              if (newStreak >= 3) setMessageToast('🔥 Streak ' + newStreak + '!');
-              else setMessageToast("Bravo! 💪");
+              setFeedback('correct'); setScore(s => s + 1);
+              const ns = streak + 1; setStreak(ns); setMaxStreak(Math.max(maxStreak, ns));
+              const gain = 20 + (ns * 5); setXpGain(gain); setXp(p => p + gain);
+              if (ns >= 3) setMessageToast('🔥 Streak ' + ns + '!'); else setMessageToast("Bravo! 💪");
               confetti({ particleCount: 100, spread: 60, origin: { y: 0.7 }, colors: ['#22c55e', '#16a34a', '#ffffff'] });
-            } else {
-              setFeedback('wrong');
-              setStreak(0);
-              setMessageToast("Wrong! Keep going 😉");
-            }
-            setTimeout(() => { setFeedback(null); setXpGain(null); setMessageToast(null); setShowReason(false); nextQuestion(); }, 3500);
+            } else { setFeedback('wrong'); setStreak(0); setMessageToast("Wrong! Keep going 😉"); }
+            setQuestionResults(prev => ({ ...prev, [nIdx]: { selected: optionLetter, feedback: correct ? 'correct' : 'wrong' } }));
+            setTimeout(() => { setMessageToast(null); setXpGain(null); }, 2000);
           };
 
-          const nextQuestion = () => {
-            if (!activeQuiz || !activeQuiz.questions) return;
-            if (currentIndex < activeQuiz.questions.length - 1) {
-              setCurrentIndex((c) => c + 1);
-              setTimeLeft(30);
-              setIsFrozen(false);
-              setEliminatedIndices([]);
-            } else {
-              clearSession(activeQuiz.id);
-              setView('result');
-            }
+          const handleNextQuestion = () => {
+            setFeedback(null); setSelectedLetter(null); setEliminatedIndices([]); setIsFrozen(false);
+            const nIdx = getNextUnanswered();
+            if (nIdx >= activeQuiz.questions.length) { clearSession(activeQuiz.id); setView('result'); return; }
+            setCurrentIndex(nIdx); setTimeLeft(TIMER_TOTAL);
+          };
+
+          const handleNavigate = (idx) => {
+            if (idx < 0 || idx > getNextUnanswered() || idx >= activeQuiz.questions.length) return;
+            setCurrentIndex(idx); setFeedback(null); setSelectedLetter(null);
+            if (!isAnswered(idx)) { setTimeLeft(TIMER_TOTAL); setIsFrozen(false); setEliminatedIndices([]); }
+            else { setEliminatedIndices([]); }
           };
 
           const use5050 = () => {
-            if (powerUps.hints <= 0 || feedback !== null || eliminatedIndices.length > 0) return;
-            const correctLetter = activeQuiz && activeQuiz.questions[currentIndex] && activeQuiz.questions[currentIndex].answer;
+            if (powerUps.hints <= 0 || feedback !== null || eliminatedIndices.length > 0 || !isViewingCurrent()) return;
+            const correctLetter = activeQuiz.questions[getNextUnanswered()].answer;
             const options = ['A', 'B', 'C', 'D'];
             const wrongOnes = options.filter(o => o !== correctLetter);
             const toEliminate = wrongOnes.sort(() => 0.5 - Math.random()).slice(0, 2);
-            setEliminatedIndices(toEliminate.map(letter => options.indexOf(letter)));
+            setEliminatedIndices(toEliminate.map(l => options.indexOf(l)));
             setPowerUps(p => ({ ...p, hints: p.hints - 1 }));
           };
 
           const useFreeze = () => {
-            if (powerUps.freezes <= 0 || feedback !== null || isFrozen) return;
-            setIsFrozen(true);
-            setPowerUps(p => ({ ...p, freezes: p.freezes - 1 }));
+            if (powerUps.freezes <= 0 || feedback !== null || isFrozen || !isViewingCurrent()) return;
+            setIsFrozen(true); setPowerUps(p => ({ ...p, freezes: p.freezes - 1 }));
           };
 
           const currentLevel = Math.floor(xp / 1000) + 1;
           const progressToNextLevel = ((xp % 1000) / 1000) * 100;
           const currentQuestion = activeQuiz && activeQuiz.questions && activeQuiz.questions[currentIndex];
+          const currentResult = questionResults[currentIndex];
+          const isOnCurrent = isViewingCurrent();
 
           return React.createElement('div', { className: "min-h-screen flex flex-col bg-[#F8FAFC] transition-colors duration-500 overflow-x-hidden" },
+
+            /* Video Modal */
+            videoModal && React.createElement('div', { className: "fixed inset-0 z-[100] flex items-center justify-center p-3 bg-slate-900/70 backdrop-blur-sm", onClick: (e) => { if (e.target === e.currentTarget) setVideoModal(false); } },
+              React.createElement('div', { className: "bg-white rounded-2xl p-5 sm:p-8 max-w-md w-full shadow-2xl border-2 border-green-100 max-h-[90vh] overflow-y-auto" },
+                React.createElement('div', { className: "flex items-center justify-between mb-4" },
+                  React.createElement('h3', { className: "text-lg sm:text-xl font-black tracking-tight" }, "🎥 3D Printing Videos"),
+                  React.createElement('button', { onClick: () => setVideoModal(false), className: "w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-boss" }, React.createElement(X, { className: "w-4 h-4" }))
+                ),
+                React.createElement('p', { className: "text-xs sm:text-sm text-slate-500 mb-3 leading-relaxed arabic-text text-right font-bold" }, "دى لتوضيح عمل كل واحده فيهم لكن مش عندنا التفاصيل دى فى المنهج"),
+                React.createElement('div', { className: "bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4" },
+                  React.createElement('p', { className: "text-[10px] sm:text-xs text-amber-800 leading-relaxed arabic-text text-right font-semibold" }, "🌷 يُفضَّل غلق الصوت قبل تشغيل الفيديو. 🌷\n📌 أبرئ ذمتي أمام الله من مشاهدة أو سماع أي موسيقى أو مؤثرات صوتية قد تكون موجودة داخل بعض الفيديوهات، حيث إن الغرض من إرفاقها تعليمي وتوضيحي فقط.")
+                ),
+                React.createElement('div', { className: "space-y-2.5" },
+                  VIDEO_DATA.map((v) =>
+                    React.createElement('a', { key: v.num, href: v.url, target: "_blank", rel: "noopener noreferrer", className: "flex items-center space-x-3 p-3 rounded-xl bg-slate-50 hover:bg-green-50 border border-slate-100 hover:border-green-300 transition-boss group" },
+                      React.createElement('span', { className: "text-xl" }, v.icon),
+                      React.createElement('div', { className: "flex-grow min-w-0" },
+                        React.createElement('p', { className: "text-xs sm:text-sm font-bold text-slate-700 group-hover:text-green-700 truncate" }, v.num + ') ' + v.title)
+                      ),
+                      React.createElement(ExternalLink, { className: "w-4 h-4 text-slate-300 group-hover:text-green-600 shrink-0" })
+                    )
+                  )
+                ),
+                React.createElement('div', { className: "mt-4 pt-3 border-t border-slate-100 text-center" },
+                  React.createElement('p', { className: "arabic-text text-sm font-bold text-slate-500" }, "🤍 لا تنسوا الدعاء لزياد 🤍")
+                )
+              )
+            ),
+
             /* Resume Modal */
             resumeModal && React.createElement('div', { className: "fixed inset-0 z-[100] flex items-center justify-center p-3 bg-slate-900/60 backdrop-blur-sm" },
               React.createElement('div', { className: "bg-white rounded-2xl p-6 sm:p-10 max-w-sm w-full shadow-2xl border-4 border-green-100 text-center" },
                 React.createElement(RefreshCw, { className: "w-10 h-10 sm:w-14 sm:h-14 mx-auto mb-4 text-green-600" }),
                 React.createElement('h3', { className: "text-xl sm:text-2xl font-black mb-3 tracking-tighter" }, "RESUME DRILL?"),
-                React.createElement('p', { className: "text-slate-500 mb-6 text-sm sm:text-base font-medium" }, 'Unfinished simulation for "' + resumeModal.rawQuiz.title + '" at Q' + (resumeModal.state.currentIndex + 1) + '.'),
+                React.createElement('p', { className: "text-slate-500 mb-6 text-sm font-medium" }, 'Unfinished: "' + resumeModal.rawQuiz.title + '"'),
                 React.createElement('div', { className: "flex flex-col gap-3" },
-                  React.createElement('button', {
-                    onClick: () => initiateQuiz({ ...resumeModal.rawQuiz, questions: resumeModal.state.questions }, resumeModal.state.currentIndex, resumeModal.state.score, resumeModal.state.streak, resumeModal.state.maxStreak, resumeModal.state.powerUps),
-                    className: "w-full py-3.5 bg-green-600 text-white rounded-xl font-black text-base sm:text-lg hover:bg-green-700 active:scale-95 transition-all shadow-xl"
-                  }, "RESUME PROGRESS"),
-                  React.createElement('button', {
-                    onClick: () => { clearSession(resumeModal.rawQuiz.id); const shuffledQuiz = getShuffledQuiz(resumeModal.rawQuiz); initiateQuiz(shuffledQuiz, 0, 0, 0, 0, { hints: 3, freezes: 2 }); },
-                    className: "w-full py-3.5 bg-slate-100 text-slate-600 rounded-xl font-black text-base sm:text-lg hover:bg-slate-200 transition-all"
-                  }, "START NEW DRILL")
+                  React.createElement('button', { onClick: () => initiateQuiz({ ...resumeModal.rawQuiz, questions: resumeModal.state.questions }, resumeModal.state.currentIndex, resumeModal.state.score, resumeModal.state.streak, resumeModal.state.maxStreak, resumeModal.state.powerUps, resumeModal.state.questionResults || {}), className: "w-full py-3.5 bg-green-600 text-white rounded-xl font-black text-base hover:bg-green-700 active:scale-95 transition-all shadow-xl" }, "RESUME"),
+                  React.createElement('button', { onClick: () => { clearSession(resumeModal.rawQuiz.id); const s = getShuffledQuiz(resumeModal.rawQuiz); initiateQuiz(s, 0, 0, 0, 0, { hints: 3, freezes: 20 }, {}); }, className: "w-full py-3.5 bg-slate-100 text-slate-600 rounded-xl font-black text-base hover:bg-slate-200 transition-all" }, "NEW DRILL")
                 )
               )
             ),
 
-            /* Header - compact on mobile */
+            /* Header */
             React.createElement('header', { className: "bg-white/95 backdrop-blur-md border-b border-green-100 sticky top-0 z-50 shadow-sm safe-top" },
               React.createElement('div', { className: "max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between" },
                 React.createElement('div', { className: "flex items-center space-x-2 sm:space-x-3 cursor-pointer group", onClick: () => setView('home') },
@@ -540,9 +516,7 @@
                 React.createElement('div', { className: "flex items-center space-x-3 sm:space-x-6" },
                   React.createElement('div', { className: "hidden sm:flex flex-col items-end" },
                     React.createElement('div', { className: "flex items-center space-x-1 mb-1" }, React.createElement(Zap, { className: "w-3 h-3 text-green-500" }), React.createElement('span', { className: "text-[9px] font-black text-slate-400" }, "XP")),
-                    React.createElement('div', { className: "w-28 h-2.5 bg-slate-100 rounded-full border border-green-50 overflow-hidden shadow-inner" },
-                      React.createElement('div', { className: "h-full bg-green-600 transition-boss", style: { width: progressToNextLevel + '%' } })
-                    )
+                    React.createElement('div', { className: "w-28 h-2.5 bg-slate-100 rounded-full border border-green-50 overflow-hidden" }, React.createElement('div', { className: "h-full bg-green-600 transition-boss", style: { width: progressToNextLevel + '%' } }))
                   ),
                   React.createElement('div', { className: "flex items-center space-x-1.5 bg-white px-2.5 py-1.5 rounded-xl shadow-sm border border-slate-100" },
                     React.createElement(Flame, { className: 'w-4 h-4 sm:w-5 sm:h-5 ' + (streak > 2 ? 'text-orange-500 animate-bounce' : 'text-slate-200') }),
@@ -555,51 +529,56 @@
             /* Main */
             React.createElement('main', { className: "flex-grow max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-8 md:py-12" },
 
-              /* HOME VIEW */
+              /* HOME */
               view === 'home' && React.createElement('div', { className: "space-y-6 sm:space-y-10" },
-                /* Hero Card */
-                React.createElement('div', { className: "relative overflow-hidden bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-14 border-2 border-white shadow-boss transition-boss" },
+                React.createElement('div', { className: "relative overflow-hidden bg-white rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-14 border-2 border-white shadow-boss" },
                   React.createElement('div', { className: "absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-green-50/50 to-transparent -skew-x-12 pointer-events-none" }),
                   React.createElement('div', { className: "relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-center" },
                     React.createElement('div', { className: "space-y-4 sm:space-y-6" },
-                      React.createElement('div', { className: "inline-flex items-center space-x-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-green-950 text-white rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] shadow-lg" }, React.createElement(Volume2, { className: "w-3 h-3 sm:w-4 sm:h-4 animate-pulse" }), React.createElement('span', null, "Data Loaded")),
+                      React.createElement('div', { className: "inline-flex items-center space-x-2 px-3 py-1.5 bg-green-950 text-white rounded-full text-[9px] font-black uppercase tracking-[0.15em] shadow-lg" }, React.createElement(Volume2, { className: "w-3 h-3 animate-pulse" }), React.createElement('span', null, "Data Loaded")),
                       React.createElement('h2', { className: "text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[0.9]" }, "The Art of ", React.createElement('br'), React.createElement('span', { className: "text-green-600 italic" }, "Fixed Prosth")),
-                      React.createElement('div', { className: "pt-2" },
-                        React.createElement('div', { className: "flex items-start space-x-3" },
-                          React.createElement('div', { className: "w-10 h-10 sm:w-12 sm:h-12 bg-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shrink-0" }, React.createElement(Ghost, { className: "w-5 h-5 sm:w-6 sm:h-6 animate-bounce" })),
-                          React.createElement('div', { className: "bg-[#F1F5F9] border-2 border-white p-3 sm:p-5 rounded-xl sm:rounded-2xl rounded-tl-none shadow-lg max-w-xs" },
-                            React.createElement('p', { className: "arabic-text text-green-900 font-bold text-sm sm:text-lg md:text-xl leading-relaxed text-right" },
-                              typedMessage,
-                              showBoss && React.createElement('span', { className: "block mt-1 text-2xl sm:text-4xl font-black tracking-tighter text-green-600 underline decoration-green-100 underline-offset-4" }, "Boss")
-                            )
-                          )
+                      React.createElement('div', { className: "pt-2" }, React.createElement('div', { className: "flex items-start space-x-3" },
+                        React.createElement('div', { className: "w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shrink-0" }, React.createElement(Ghost, { className: "w-5 h-5 animate-bounce" })),
+                        React.createElement('div', { className: "bg-[#F1F5F9] border-2 border-white p-3 sm:p-5 rounded-xl rounded-tl-none shadow-lg max-w-xs" },
+                          React.createElement('p', { className: "arabic-text text-green-900 font-bold text-sm sm:text-lg leading-relaxed text-right" }, typedMessage, showBoss && React.createElement('span', { className: "block mt-1 text-2xl sm:text-4xl font-black tracking-tighter text-green-600 underline decoration-green-100 underline-offset-4" }, "Boss"))
                         )
-                      )
+                      ))
                     ),
-                    /* Stats Grid */
                     React.createElement('div', { className: "grid grid-cols-2 gap-3 sm:gap-5" },
-                      [{ label: 'TOTAL XP', val: xp, icon: Zap, color: 'text-green-500' }, { label: 'RANK', val: currentLevel, icon: Star, color: 'text-yellow-500' }, { label: 'BEST STREAK', val: maxStreak, icon: Flame, color: 'text-orange-500' }, { label: 'MODULES', val: '5/5', icon: Award, color: 'text-purple-500' }].map((stat, i) =>
-                        React.createElement('div', { key: i, className: "bg-slate-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-white shadow-inner flex flex-col items-center group hover:bg-white hover:shadow-lg hover:scale-105 transition-boss" },
-                          React.createElement('div', { className: "p-2 bg-white rounded-xl shadow-sm mb-2 sm:mb-3 transition-boss group-hover:rotate-12" }, React.createElement(stat.icon, { className: 'w-5 h-5 sm:w-7 sm:h-7 ' + stat.color })),
-                          React.createElement('span', { className: "text-xl sm:text-2xl font-black text-slate-800 tracking-tight" }, stat.val),
-                          React.createElement('span', { className: "text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1" }, stat.label)
+                      [{ label: 'TOTAL XP', val: xp, icon: Zap, color: 'text-green-500' }, { label: 'RANK', val: currentLevel, icon: Star, color: 'text-yellow-500' }, { label: 'BEST STREAK', val: maxStreak, icon: Flame, color: 'text-orange-500' }, { label: 'MODULES', val: '5/5', icon: Award, color: 'text-purple-500' }].map((s, i) =>
+                        React.createElement('div', { key: i, className: "bg-slate-50 p-4 sm:p-6 rounded-xl border-2 border-white shadow-inner flex flex-col items-center group hover:bg-white hover:shadow-lg hover:scale-105 transition-boss" },
+                          React.createElement('div', { className: "p-2 bg-white rounded-xl shadow-sm mb-2 transition-boss group-hover:rotate-12" }, React.createElement(s.icon, { className: 'w-5 h-5 sm:w-7 sm:h-7 ' + s.color })),
+                          React.createElement('span', { className: "text-xl sm:text-2xl font-black text-slate-800" }, s.val),
+                          React.createElement('span', { className: "text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1" }, s.label)
                         )
                       )
                     )
                   )
                 ),
+
+                /* Video Notification Card */
+                React.createElement('div', { onClick: () => setVideoModal(true), className: "notif-slide cursor-pointer bg-gradient-to-r from-emerald-600 to-green-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 flex items-center justify-between shadow-lg hover:shadow-xl hover:scale-[1.01] transition-boss group" },
+                  React.createElement('div', { className: "flex items-center space-x-3 sm:space-x-4" },
+                    React.createElement('div', { className: "w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center" }, React.createElement(Bell, { className: "w-5 h-5 sm:w-6 sm:h-6 text-white bell-anim" })),
+                    React.createElement('div', null,
+                      React.createElement('p', { className: "text-white font-black text-sm sm:text-base" }, "🎥 Watch 3D Printing Videos"),
+                      React.createElement('p', { className: "text-green-200 text-[10px] sm:text-xs font-semibold" }, "SLA · PolyJet · Binder Jetting · PBF · FDM — Click to watch!")
+                    )
+                  ),
+                  React.createElement(ChevronRight, { className: "w-5 h-5 sm:w-6 sm:h-6 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-boss" })
+                ),
+
                 /* Quiz Cards */
                 React.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" },
                   QUIZZES.map((quiz) =>
                     React.createElement('div', { key: quiz.id, className: "group bg-white rounded-xl sm:rounded-2xl p-5 sm:p-8 border-2 border-transparent hover:border-green-400 hover:shadow-xl transition-boss cursor-pointer flex flex-col relative overflow-hidden transform hover:-translate-y-2", onClick: () => handleStartQuiz(quiz) },
-                      React.createElement('div', { className: "w-12 h-12 sm:w-14 sm:h-14 bg-slate-100 rounded-xl flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:bg-green-600 group-hover:text-white transition-boss group-hover:rotate-6" }, quiz.icon),
+                      quiz.id === 'q5' && React.createElement('div', { onClick: (e) => { e.stopPropagation(); setVideoModal(true); }, className: "absolute top-3 right-3 w-7 h-7 bg-green-100 rounded-full flex items-center justify-center hover:bg-green-200 transition-boss z-10" }, React.createElement(Bell, { className: "w-3.5 h-3.5 text-green-600" })),
+                      React.createElement('div', { className: "w-12 h-12 sm:w-14 sm:h-14 bg-slate-100 rounded-xl flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 group-hover:bg-green-600 transition-boss group-hover:rotate-6" }, quiz.icon),
                       React.createElement('h3', { className: "text-lg sm:text-xl font-black text-slate-800 mb-2 group-hover:text-green-600 transition-colors leading-tight" }, quiz.title),
                       React.createElement('p', { className: "text-xs sm:text-sm text-slate-400 flex-grow font-semibold leading-relaxed mb-3 sm:mb-4" }, quiz.description),
-                      React.createElement('div', { className: "flex items-center justify-between text-[9px] sm:text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3 sm:mb-4" },
-                        React.createElement('span', null, quiz.questions.length + ' Qs')
-                      ),
+                      React.createElement('div', { className: "flex items-center justify-between text-[9px] sm:text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3 sm:mb-4" }, React.createElement('span', null, quiz.questions.length + ' Qs')),
                       React.createElement('div', { className: "flex items-center justify-between border-t border-slate-50 pt-3 sm:pt-4" },
-                        React.createElement('span', { className: "text-[9px] sm:text-[10px] font-black text-green-600 tracking-[0.15em] uppercase" }, quiz.isExternal ? 'OPEN' : 'BEGIN'),
+                        React.createElement('span', { className: "text-[9px] sm:text-[10px] font-black text-green-600 tracking-[0.15em] uppercase" }, 'BEGIN'),
                         React.createElement('div', { className: "w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-boss" }, React.createElement(ChevronRight, { className: "w-4 h-4 sm:w-5 sm:h-5" }))
                       )
                     )
@@ -607,67 +586,103 @@
                 )
               ),
 
-              /* QUIZ VIEW */
+              /* QUIZ */
               view === 'quiz' && activeQuiz && activeQuiz.questions && React.createElement('div', { className: "max-w-2xl mx-auto" },
                 /* Top Bar */
-                React.createElement('div', { className: "mb-4 sm:mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3" },
-                  React.createElement('button', { onClick: () => setView('home'), className: "px-4 py-2.5 sm:px-6 sm:py-3 bg-white text-slate-900 rounded-xl font-black text-sm hover:bg-slate-50 border-2 border-slate-100 shadow-sm transition-boss flex items-center justify-center group" }, React.createElement(ArrowLeft, { className: "w-4 h-4 mr-2 group-hover:-translate-x-1" }), "EXIT"),
-                  React.createElement('div', { className: "flex items-center space-x-2 sm:space-x-3" },
-                    React.createElement('button', { onClick: use5050, disabled: powerUps.hints === 0 || feedback !== null || eliminatedIndices.length > 0, className: "flex items-center space-x-1.5 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl font-black text-xs border-2 transition-boss shadow-sm bg-green-50 border-green-200 text-green-700 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed" }, React.createElement(Brain, { className: "w-4 h-4" }), React.createElement('span', null, '50/50 (' + powerUps.hints + ')')),
-                    React.createElement('button', { onClick: useFreeze, disabled: powerUps.freezes === 0 || feedback !== null || isFrozen, className: "flex items-center space-x-1.5 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl font-black text-xs border-2 transition-boss shadow-sm bg-cyan-50 border-cyan-200 text-cyan-700 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed" }, React.createElement(Clock, { className: "w-4 h-4" }), React.createElement('span', null, 'FREEZE (' + powerUps.freezes + ')'))
+                React.createElement('div', { className: "mb-3 sm:mb-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2" },
+                  React.createElement('button', { onClick: () => setView('home'), className: "px-4 py-2.5 bg-white text-slate-900 rounded-xl font-black text-sm border-2 border-slate-100 shadow-sm transition-boss flex items-center justify-center group" }, React.createElement(ArrowLeft, { className: "w-4 h-4 mr-2" }), "EXIT"),
+                  React.createElement('div', { className: "flex items-center space-x-2" },
+                    React.createElement('button', { onClick: use5050, disabled: powerUps.hints === 0 || feedback !== null || eliminatedIndices.length > 0 || !isOnCurrent, className: "flex items-center space-x-1 px-2.5 py-2 sm:px-3 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs border-2 transition-boss shadow-sm bg-green-50 border-green-200 text-green-700 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed" }, React.createElement(Brain, { className: "w-3.5 h-3.5" }), React.createElement('span', null, '50/50 (' + powerUps.hints + ')')),
+                    React.createElement('button', { onClick: useFreeze, disabled: powerUps.freezes <= 0 || feedback !== null || isFrozen || !isOnCurrent, className: "flex items-center space-x-1 px-2.5 py-2 sm:px-3 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs border-2 transition-boss shadow-sm bg-cyan-50 border-cyan-200 text-cyan-700 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed" }, React.createElement(Clock, { className: "w-3.5 h-3.5" }), React.createElement('span', null, 'FREEZE (' + powerUps.freezes + ')'))
                   )
                 ),
+
+                /* Navigation Dots Row */
+                React.createElement('div', { className: "mb-3 flex items-center justify-center gap-1 flex-wrap" },
+                  React.createElement('button', { onClick: () => handleNavigate(currentIndex - 1), disabled: currentIndex <= 0, className: "w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center disabled:opacity-30 hover:bg-green-100 transition-boss" }, React.createElement(ChevronLeft, { className: "w-3.5 h-3.5" })),
+                  activeQuiz.questions.slice(0, Math.min(activeQuiz.questions.length, 50)).map((_, i) => {
+                    const answered = isAnswered(i);
+                    const res = questionResults[i];
+                    let dotClass = 'bg-slate-100';
+                    if (i === currentIndex) dotClass = 'ring-2 ring-green-400 ring-offset-1 ' + (answered ? (res.feedback === 'correct' ? 'bg-green-500' : 'bg-red-400') : 'bg-green-400');
+                    else if (answered) dotClass = res.feedback === 'correct' ? 'bg-green-500' : 'bg-red-400';
+                    return React.createElement('button', { key: i, onClick: () => handleNavigate(i), disabled: i > getNextUnanswered(), className: 'w-5 h-5 sm:w-6 sm:h-6 rounded-md text-[7px] sm:text-[8px] font-black flex items-center justify-center transition-boss ' + dotClass + (i > getNextUnanswered() ? ' opacity-30 cursor-not-allowed' : ' hover:scale-125') }, i + 1);
+                  }),
+                  React.createElement('button', { onClick: () => handleNavigate(currentIndex + 1), disabled: currentIndex >= getNextUnanswered(), className: "w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center disabled:opacity-30 hover:bg-green-100 transition-boss" }, React.createElement(ChevronRight, { className: "w-3.5 h-3.5" }))
+                ),
+
                 /* Quiz Card */
-                React.createElement('div', { className: 'relative bg-white rounded-2xl sm:rounded-3xl shadow-boss border-2 sm:border-4 transition-boss ' + (feedback === 'correct' ? 'border-green-400 correct-glow' : feedback === 'wrong' ? 'border-red-400 shake' : 'border-white') },
-                  messageToast && React.createElement('div', { className: "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-5 py-2.5 sm:px-8 sm:py-3 rounded-xl font-black text-sm sm:text-base shadow-2xl z-30 whitespace-nowrap" }, messageToast),
-                  /* Timer Bar */
-                  React.createElement('div', { className: "h-2 sm:h-2.5 w-full bg-slate-100 relative rounded-t-2xl sm:rounded-t-3xl overflow-hidden" },
-                    React.createElement('div', { className: 'h-full transition-all duration-1000 ease-linear ' + (timeLeft < 10 ? 'fire-timer' : 'bg-green-600'), style: { width: (timeLeft / 30) * 100 + '%' } }),
-                    isFrozen && React.createElement('div', { className: "absolute inset-0 bg-cyan-400/30 backdrop-blur-[1px] flex items-center justify-center font-black text-white text-[8px] sm:text-[10px]" }, "FROZEN")
+                React.createElement('div', { key: 'qcard-' + currentIndex, className: 'relative bg-white rounded-2xl sm:rounded-3xl shadow-boss border-2 sm:border-4 transition-boss ' + (feedback === 'correct' ? 'border-green-400 correct-glow' : (feedback === 'wrong' || feedback === 'timeout') ? 'border-red-400 shake' : 'border-white') },
+                  messageToast && React.createElement('div', { className: "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-black text-sm shadow-2xl z-30 whitespace-nowrap" }, messageToast),
+                  /* Timer */
+                  React.createElement('div', { className: "h-2 w-full bg-slate-100 relative rounded-t-2xl sm:rounded-t-3xl overflow-hidden" },
+                    isOnCurrent && React.createElement('div', { className: 'h-full transition-all duration-1000 ease-linear ' + (timeLeft < 25 ? 'fire-timer' : 'bg-green-600'), style: { width: (timeLeft / TIMER_TOTAL) * 100 + '%' } }),
+                    isOnCurrent && isFrozen && React.createElement('div', { className: "absolute inset-0 bg-cyan-400/30 flex items-center justify-center font-black text-white text-[8px]" }, "FROZEN"),
+                    !isOnCurrent && React.createElement('div', { className: "h-full bg-slate-300 w-full" })
                   ),
-                  React.createElement('div', { className: "p-4 sm:p-6 md:p-10 relative" },
-                    xpGain && React.createElement('div', { className: "absolute top-3 right-3 sm:top-5 sm:right-5 text-2xl sm:text-3xl font-black text-green-500 xp-float" }, '+' + xpGain + ' XP'),
-                    /* Question Header */
-                    React.createElement('div', { className: "flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6" },
-                      React.createElement('div', { className: 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md ' + (currentIndex >= activeQuiz.questions.length - 5 ? 'bg-red-600 text-white animate-pulse' : 'bg-green-600 text-white') }, currentIndex >= activeQuiz.questions.length - 5 ? React.createElement(Skull, { className: "w-4 h-4 sm:w-5 sm:h-5" }) : React.createElement(Zap, { className: "w-4 h-4 sm:w-5 sm:h-5" })),
-                      React.createElement('div', { className: "flex flex-col" },
-                        React.createElement('span', { className: 'text-[8px] sm:text-[10px] font-black tracking-[0.15em] uppercase ' + (currentIndex >= activeQuiz.questions.length - 5 ? 'text-red-600' : 'text-green-600') }, currentIndex >= activeQuiz.questions.length - 5 ? 'FINAL 5!' : 'Phase ' + (currentIndex + 1)),
-                        React.createElement('span', { className: "text-slate-400 text-[8px] sm:text-[10px] font-bold truncate max-w-[180px] sm:max-w-none" }, activeQuiz.title)
+                  React.createElement('div', { className: "p-4 sm:p-6 md:p-8 relative" },
+                    xpGain && React.createElement('div', { className: "absolute top-3 right-3 text-2xl sm:text-3xl font-black text-green-500 xp-float" }, '+' + xpGain + ' XP'),
+                    /* Q Header */
+                    React.createElement('div', { className: "flex items-center space-x-2 mb-3 sm:mb-5" },
+                      React.createElement('div', { className: 'w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shadow-md ' + (!isOnCurrent ? 'bg-slate-400 text-white' : currentIndex >= activeQuiz.questions.length - 5 ? 'bg-red-600 text-white animate-pulse' : 'bg-green-600 text-white') }, !isOnCurrent ? React.createElement(ChevronLeft, { className: "w-4 h-4" }) : currentIndex >= activeQuiz.questions.length - 5 ? React.createElement(Skull, { className: "w-4 h-4" }) : React.createElement(Zap, { className: "w-4 h-4" })),
+                      React.createElement('div', null,
+                        React.createElement('span', { className: 'text-[8px] sm:text-[10px] font-black tracking-[0.15em] uppercase ' + (!isOnCurrent ? 'text-slate-400' : currentIndex >= activeQuiz.questions.length - 5 ? 'text-red-600' : 'text-green-600') }, !isOnCurrent ? 'REVIEWING Q' + (currentIndex + 1) : currentIndex >= activeQuiz.questions.length - 5 ? 'FINAL 5!' : 'Phase ' + (currentIndex + 1)),
+                        React.createElement('span', { className: "text-slate-400 text-[8px] sm:text-[10px] font-bold ml-2" }, activeQuiz.title)
                       )
                     ),
-                    /* Question Text */
-                    React.createElement('h3', { className: "text-base sm:text-lg md:text-xl font-black text-slate-900 mb-5 sm:mb-8 tracking-tight leading-snug" }, currentQuestion.text),
+                    /* Q Text */
+                    React.createElement('h3', { className: "text-base sm:text-lg md:text-xl font-black text-slate-900 mb-4 sm:mb-6 tracking-tight leading-snug" }, currentQuestion.text),
                     /* Options */
-                    React.createElement('div', { className: "grid grid-cols-1 gap-2.5 sm:gap-3" },
+                    React.createElement('div', { key: 'opts-' + currentIndex, className: "grid grid-cols-1 gap-2 sm:gap-2.5" },
                       currentQuestion.options.map((option, idx) => {
                         const letter = option.split(')')[0].trim().toUpperCase();
                         const isEliminated = eliminatedIndices.includes(idx);
-                        const isUserCorrect = feedback === 'correct' && currentQuestion.answer === letter;
-                        const isShownCorrect = feedback === 'wrong' && currentQuestion.answer === letter;
-                        return React.createElement('button', { key: idx, disabled: feedback !== null || isEliminated, onClick: () => handleSelectAnswer(letter), className: 'w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 sm:border-3 transition-boss flex items-center group relative overflow-hidden ' + (isEliminated ? 'opacity-10 pointer-events-none' : isUserCorrect ? 'border-green-500 bg-green-50 scale-[1.01]' : isShownCorrect ? 'border-green-500 bg-green-50/50 border-dashed' : 'border-slate-100 bg-slate-50 hover:border-green-500 active:scale-[0.98]') },
-                          React.createElement('div', { className: 'w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4 font-black text-base sm:text-lg shadow-sm shrink-0 ' + (isUserCorrect ? 'bg-green-500 text-white' : 'bg-white text-slate-400 group-hover:bg-green-600 group-hover:text-white group-hover:rotate-6') }, letter),
-                          React.createElement('span', { className: 'text-xs sm:text-sm md:text-base font-semibold leading-snug ' + (isUserCorrect ? 'text-green-900' : 'text-slate-700') }, option.includes(')') ? option.substring(option.indexOf(')') + 1).trim() : option)
+                        const isCorrectAnswer = currentQuestion.answer === letter;
+                        const resultForThisQ = currentResult;
+                        const isStoredCorrect = resultForThisQ && resultForThisQ.feedback === 'correct' && resultForThisQ.selected === letter;
+                        const isStoredWrong = resultForThisQ && (resultForThisQ.feedback === 'wrong' || resultForThisQ.feedback === 'timeout') && resultForThisQ.selected === letter;
+                        const isJustCorrect = feedback === 'correct' && selectedLetter === letter && isOnCurrent;
+                        const isJustWrong = (feedback === 'wrong' || feedback === 'timeout') && selectedLetter === letter && isOnCurrent;
+                        const isRevealCorrect = (resultForThisQ && (resultForThisQ.feedback === 'wrong' || resultForThisQ.feedback === 'timeout') && isCorrectAnswer) || ((feedback === 'wrong' || feedback === 'timeout') && isCorrectAnswer && isOnCurrent);
+                        let oClass = 'border-slate-100 bg-slate-50 hover:border-green-500 active:scale-[0.98]';
+                        let lClass = 'bg-white text-slate-400 group-hover:bg-green-600 group-hover:text-white group-hover:rotate-6';
+                        let tClass = 'text-slate-700';
+                        if (isStoredCorrect || isJustCorrect) { oClass = 'border-green-500 bg-green-50'; lClass = 'bg-green-500 text-white'; tClass = 'text-green-900 font-black'; }
+                        else if (isStoredWrong || isJustWrong) { oClass = 'border-red-400 bg-red-50'; lClass = 'bg-red-500 text-white'; tClass = 'text-red-900'; }
+                        else if (isRevealCorrect) { oClass = 'border-green-500 bg-green-50/60 border-dashed'; lClass = 'bg-green-500 text-white'; tClass = 'text-green-800'; }
+                        const isDisabled = (isOnCurrent && feedback !== null) || !isOnCurrent || isEliminated;
+                        return React.createElement('button', { key: 'o-' + currentIndex + '-' + idx, disabled: isDisabled, onClick: () => handleSelectAnswer(letter), className: 'w-full text-left p-3 sm:p-4 rounded-xl border-2 transition-boss flex items-center group relative overflow-hidden ' + (isEliminated ? 'opacity-10 pointer-events-none ' + oClass : oClass) },
+                          React.createElement('div', { className: 'w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center mr-3 font-black text-sm sm:text-base shadow-sm shrink-0 ' + lClass }, letter),
+                          React.createElement('span', { className: 'text-xs sm:text-sm font-semibold leading-snug ' + tClass }, option.includes(')') ? option.substring(option.indexOf(')') + 1).trim() : option)
                         );
                       })
                     ),
-                    /* Reason Box */
-                    showReason && currentQuestion.reason && React.createElement('div', { className: "reason-box mt-4 sm:mt-6 p-3 sm:p-4 bg-emerald-50 border border-green-200 rounded-xl sm:rounded-2xl flex items-start space-x-2 sm:space-x-3" },
-                      React.createElement(Info, { className: "w-4 h-4 sm:w-5 sm:h-5 text-green-600 shrink-0 mt-0.5" }),
+                    /* Reason */
+                    (currentResult || feedback) && currentQuestion.reason && React.createElement('div', { className: "reason-box mt-3 sm:mt-4 p-3 bg-emerald-50 border border-green-200 rounded-xl flex items-start space-x-2" },
+                      React.createElement(Info, { className: "w-4 h-4 text-green-600 shrink-0 mt-0.5" }),
                       React.createElement('div', null,
                         React.createElement('p', { className: "text-[8px] sm:text-[10px] font-black text-green-600 uppercase tracking-widest mb-1" }, "Why?"),
                         React.createElement('p', { className: "text-xs sm:text-sm text-slate-700 font-semibold leading-relaxed" }, currentQuestion.reason)
                       )
                     ),
+                    /* Next Button (after answering current question) */
+                    isOnCurrent && feedback && React.createElement('button',
+
+
+                      { onClick: handleNextQuestion, className: "next-btn-pulse w-full mt-3 sm:mt-4 py-3 sm:py-3.5 bg-green-600 text-white rounded-xl font-black text-sm sm:text-base hover:bg-green-700 active:scale-95 transition-all shadow-lg flex items-center justify-center space-x-2" },
+                      React.createElement('span', null, getNextUnanswered() + 1 < activeQuiz.questions.length ? 'NEXT QUESTION' : 'SEE RESULTS'),
+                      React.createElement(ArrowRight, { className: "w-4 h-4 sm:w-5 sm:h-5" })
+                    ),
                     /* Bottom Stats */
-                    React.createElement('div', { className: "mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 border-t border-slate-100 pt-4 sm:pt-6" },
-                      React.createElement('div', { className: "flex flex-col items-center sm:items-start" },
-                        React.createElement('span', { className: "text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5" }, "Progress"),
-                        React.createElement('div', { className: "flex space-x-1" }, activeQuiz.questions.slice(0, Math.min(activeQuiz.questions.length, 30)).map((_, i) => React.createElement('div', { key: i, className: 'h-1.5 w-3 sm:h-2 sm:w-4 rounded-full transition-boss ' + (i < currentIndex ? 'bg-green-600' : i === currentIndex ? 'bg-green-300 animate-pulse w-5 sm:w-6' : 'bg-slate-100') })))
+                    React.createElement('div', { className: "mt-4 sm:mt-5 flex items-center justify-between border-t border-slate-100 pt-4 sm:pt-5" },
+                      React.createElement('div', { className: "text-center" },
+                        React.createElement('span', { className: "block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5" }, "Sec"),
+                        React.createElement('span', { className: 'text-xl sm:text-2xl font-black tabular-nums ' + (isOnCurrent && timeLeft < 25 ? 'text-red-500 animate-pulse' : 'text-slate-900') }, isOnCurrent ? timeLeft : '--')
                       ),
-                      React.createElement('div', { className: "flex items-center space-x-4 sm:space-x-6" },
-                        React.createElement('div', { className: "text-center" }, React.createElement('span', { className: "block text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5" }, "Sec"), React.createElement('span', { className: 'text-xl sm:text-2xl font-black tabular-nums ' + (timeLeft < 10 ? 'text-red-500 animate-pulse' : 'text-slate-900') }, timeLeft)),
-                        React.createElement('div', { className: "h-8 w-px bg-slate-200" }),
-                        React.createElement('div', { className: "text-center" }, React.createElement('span', { className: "block text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5" }, "Score"), React.createElement('span', { className: "text-xl sm:text-2xl font-black text-green-600" }, score))
+                      React.createElement('div', { className: "h-8 w-px bg-slate-200" }),
+                      React.createElement('div', { className: "text-center" },
+                        React.createElement('span', { className: "block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5" }, "Score"),
+                        React.createElement('span', { className: "text-xl sm:text-2xl font-black text-green-600" }, score)
                       )
                     )
                   )
@@ -681,28 +696,28 @@
                     React.createElement(Trophy, { className: "w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-8 text-yellow-400 animate-bounce" }),
                     React.createElement('h2', { className: "text-3xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 tracking-tighter uppercase" }, "Academy Legend!"),
                     React.createElement('p', { className: "text-green-200 font-bold text-sm sm:text-base uppercase tracking-widest opacity-80" }, activeQuiz.title),
-                    React.createElement('div', { className: "mt-6 sm:mt-8 inline-flex items-center space-x-3 bg-white/10 px-5 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl backdrop-blur-xl border border-white/20" }, React.createElement(Zap, { className: "w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-current" }), React.createElement('span', { className: "text-lg sm:text-2xl font-black" }, '+' + (score * 25) + ' XP'))
+                    React.createElement('div', { className: "mt-6 sm:mt-8 inline-flex items-center space-x-3 bg-white/10 px-5 py-3 sm:px-8 sm:py-4 rounded-xl backdrop-blur-xl border border-white/20" }, React.createElement(Zap, { className: "w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-current" }), React.createElement('span', { className: "text-lg sm:text-2xl font-black" }, '+' + (score * 25) + ' XP'))
                   ),
                   React.createElement('div', { className: "p-5 sm:p-8 md:p-12 text-center bg-slate-50/30" },
                     React.createElement('div', { className: "grid grid-cols-2 gap-3 sm:gap-5 mb-8 sm:mb-12" },
                       [{ l: 'CORRECT', v: score + '/' + (activeQuiz.questions ? activeQuiz.questions.length : 0), c: 'text-slate-900' }, { l: 'ACCURACY', v: Math.round((score / (activeQuiz.questions ? activeQuiz.questions.length : 1)) * 100) + '%', c: 'text-green-600' }, { l: 'PEAK STREAK', v: maxStreak, c: 'text-orange-500' }, { l: 'LEVEL', v: currentLevel, c: 'text-purple-600' }].map((stat, i) =>
-                        React.createElement('div', { key: i, className: "bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-white flex flex-col items-center shadow-md" }, React.createElement('span', { className: "text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2" }, stat.l), React.createElement('p', { className: 'text-2xl sm:text-3xl font-black tracking-tighter ' + stat.c }, stat.v))
+                        React.createElement('div', { key: i, className: "bg-white p-4 sm:p-6 rounded-xl border-2 border-white flex flex-col items-center shadow-md" }, React.createElement('span', { className: "text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2" }, stat.l), React.createElement('p', { className: 'text-2xl sm:text-3xl font-black tracking-tighter ' + stat.c }, stat.v))
                       )
                     ),
-                    React.createElement('div', { className: "flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4" },
-                      React.createElement('button', { onClick: () => { clearSession(activeQuiz.id); const shuffledQuiz = getShuffledQuiz(QUIZZES.find(q => q.id === activeQuiz.id)); initiateQuiz(shuffledQuiz, 0, 0, 0, 0, { hints: 3, freezes: 2 }); }, className: "w-full sm:w-auto px-8 py-3.5 sm:px-12 sm:py-4 bg-green-600 text-white rounded-xl sm:rounded-2xl font-black text-base sm:text-lg hover:bg-green-700 hover:scale-105 transition-all shadow-xl" }, "RE-SIMULATE"),
-                      React.createElement('button', { onClick: () => setView('home'), className: "w-full sm:w-auto px-8 py-3.5 sm:px-12 sm:py-4 bg-white text-slate-600 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg border-2 border-slate-200" }, "DASHBOARD")
+                    React.createElement('div', { className: "flex flex-col sm:flex-row items-center justify-center gap-3" },
+                      React.createElement('button', { onClick: () => { clearSession(activeQuiz.id); const s = getShuffledQuiz(QUIZZES.find(q => q.id === activeQuiz.id)); initiateQuiz(s, 0, 0, 0, 0, { hints: 3, freezes: 20 }, {}); }, className: "w-full sm:w-auto px-8 py-3.5 sm:px-12 sm:py-4 bg-green-600 text-white rounded-xl font-black text-base sm:text-lg hover:bg-green-700 hover:scale-105 transition-all shadow-xl" }, "RE-SIMULATE"),
+                      React.createElement('button', { onClick: () => setView('home'), className: "w-full sm:w-auto px-8 py-3.5 sm:px-12 sm:py-4 bg-white text-slate-600 rounded-xl font-black text-base sm:text-lg border-2 border-slate-200" }, "DASHBOARD")
                     )
                   )
                 )
               )
             ),
 
-            /* Footer - compact */
+            /* Footer */
             React.createElement('footer', { className: "py-10 sm:py-16 text-center safe-bottom" },
-              React.createElement('div', { className: "flex justify-center items-center space-x-2 mb-3 group cursor-pointer", onClick: () => setView('home') },
-                React.createElement('div', { className: "w-9 h-9 sm:w-11 sm:h-11 bg-slate-950 rounded-xl flex items-center justify-center text-white font-black text-lg sm:text-xl group-hover:bg-green-600 transition-boss shadow-lg" }, "B"),
-                React.createElement('span', { className: "text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter uppercase group-hover:text-green-600 transition-colors" }, "Boss")
+              React.createElement('div', { className: "flex justify-center items-center space-x-2 mb-3 cursor-pointer", onClick: () => setView('home') },
+                React.createElement('div', { className: "w-9 h-9 sm:w-11 sm:h-11 bg-slate-950 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg" }, "B"),
+                React.createElement('span', { className: "text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter uppercase" }, "Boss")
               ),
               React.createElement('p', { className: "text-slate-400 font-bold uppercase tracking-[0.3em] sm:tracking-[0.5em] text-[9px] sm:text-[10px] mb-6" }, "Dental Materials Mastery"),
               React.createElement('div', { className: "flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6 text-[8px] sm:text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] border-t border-slate-100 pt-6 max-w-md mx-auto" },
@@ -721,3 +736,4 @@
     </script>
 </body>
 </html>
+
