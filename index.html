@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dental PROSTH MASTERY | BOSS Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; scroll-behavior: smooth; }
+        .arabic-text { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-10px); }
+          75% { transform: translateX(10px); }
+        }
+        .shake { animation: shake 0.2s ease-in-out 0s 2; }
+        @keyframes float-up {
+          0% { opacity: 0; transform: translateY(0); }
+          20% { opacity: 1; }
+          100% { opacity: 0; transform: translateY(-120px); }
+        }
+        .xp-float { animation: float-up 1.3s ease-out forwards; pointer-events: none; }
+        @keyframes pulse-glow {
+          0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+          70% { box-shadow: 0 0 0 20px rgba(22, 163, 74, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+        .correct-glow { animation: pulse-glow 1s infinite; }
+        .fire-timer {
+          background: linear-gradient(90deg, #16a34a, #ef4444, #f97316);
+          background-size: 300% 300%;
+          animation: gradient-move 1.5s ease infinite;
+        }
+        @keyframes gradient-move {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .shadow-boss { box-shadow: 0 20px 50px -12px rgba(22, 163, 74, 0.2); }
+        .transition-boss { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reason-box {
+          animation: reason-slide 0.4s ease-out forwards;
+        }
+        @keyframes reason-slide {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.475.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 selection:bg-green-100 selection:text-green-600">
+    <div id="root"></div>
+    <script type="module">
+        import React, { useState, useEffect, useRef } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import {
+          ChevronRight, Trophy, ArrowLeft, Stethoscope, Sparkles, Award,
+          BookOpen, Zap, Flame, Shield, Clock, Skull, Star, Brain, Ghost, Volume2, RefreshCw, Info
+        } from 'lucide-react';
+
+        // --- RANDOMIZER LOGIC ---
+        const shuffleArray = (array) => {
+          const shuffled = [...array];
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          return shuffled;
+        };
+
+        const getShuffledQuiz = (quiz) => {
+          if (!quiz.questions) return quiz;
+          const newQuestions = quiz.questions.map(q => {
+            const parsedOptions = q.options.map(opt => {
+              const firstParen = opt.indexOf(')');
+              const originalLetter = opt.substring(0, firstParen).trim();
+              const text = opt.substring(firstParen + 1).trim();
+              return { originalLetter, text };
+            });
+
+            const shuffledParsed = shuffleArray(parsedOptions);
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let newCorrectAnswer = '';
+
+            const finalOptions = shuffledParsed.map((opt, index) => {
+              const newLetter = letters[index];
+              if (opt.originalLetter === q.answer) {
+                newCorrectAnswer = newLetter;
+              }
+              return newLetter + ') ' + opt.text;
+            });
+
+            return {
+              ...q,
+              options: finalOptions,
+              answer: newCorrectAnswer
+            };
+          });
+          return { ...quiz, questions: newQuestions };
+        };
+
+        const QUIZZES = [
+          {
+            id: 'q1',
+            title: 'Investment & Lost Wax',
+            description: 'Investment materials, silica polymorphs, binders, and the lost wax technique.',
+            icon: '🔥',
+            isExternal: false,
+            questions: [
+              { id:'1-1', text:'What is the primary purpose of investment materials in dentistry?', options:['A) To create the wax pattern','B) To form a mold for casting metal','C) To melt the alloy directly','D) To polish the final restoration'], answer:'B', reason:'Investment materials are used to create a mold by the lost wax technique into which metal is cast.' },
+              { id:'1-2', text:'In the lost wax technique, what happens immediately after the wax pattern is surrounded by investment?', options:['A) The wax is burned out','B) The investment material sets','C) The metal is cast','D) The pattern is cooled'], answer:'B', reason:'After investing, the material is allowed to set (harden) around the wax before heating.' },
+              { id:'1-3', text:'During heating of the invested mold, the wax is removed by:', options:['A) Dissolving in acid','B) Melting and escaping','C) Mechanical scraping','D) Water absorption'], answer:'B', reason:'Heat melts the wax, which then flows out of the mold, leaving a clean cavity.' },
+              { id:'1-4', text:'Which silica polymorph shows the greatest expansion at the lowest temperature?', options:['A) Quartz','B) Tridymite','C) Cristobalite','D) Fused quartz'], answer:'C', reason:'Cristobalite has the highest thermal expansion at relatively low temperatures among silica forms.' },
+              { id:'1-5', text:'Fused quartz is characterized by:', options:['A) Very high thermal expansion','B) Extremely low thermal expansion','C) The same expansion as cristobalite','D) No expansion at all'], answer:'B', reason:'Fused quartz has an exceedingly low amount of thermal expansion.' },
+              { id:'1-6', text:'Why is the expansion of silica forms critical in investment materials?', options:['A) It weakens the mold','B) It compensates for alloy shrinkage during cooling','C) It helps remove the wax','D) It increases setting time'], answer:'B', reason:'The thermal expansion of silica compensates for the shrinkage of the alloy as it cools.' },
+              { id:'1-7', text:'Which property ensures the investment breaks easily after casting?', options:['A) High strength at room temperature','B) Sufficient strength with easy breakup','C) Chemical stability','D) Fine particle size'], answer:'B', reason:'The investment must be strong enough to withstand casting but brittle enough to be removed easily.' },
+              { id:'1-8', text:'Permeability of an investment material is essential for:', options:['A) Allowing air to escape','B) Increasing expansion','C) Reducing setting time','D) Improving color'], answer:'A', reason:'Permeability lets gases escape during casting to prevent back pressure porosity.' },
+              { id:'1-9', text:'In the general formulation, the refractory material percentage is approximately:', options:['A) 30–35%','B) 60–65%','C) 4–5%','D) 85–90%'], answer:'B', reason:'Refractory material makes up 60–65% of the investment, providing heat resistance and expansion.' },
+              { id:'1-10', text:'The binder in an investment material functions to:', options:['A) Produce thermal expansion','B) Bind refractory particles into a solid mass','C) Prevent metal oxidation','D) Increase permeability'], answer:'B', reason:'The binder holds refractory particles together, forming a coherent solid.' },
+              { id:'1-11', text:'Chemical modifiers are added to investments in amounts of:', options:['A) 10–15%','B) 30–35%','C) 60–65%','D) 4–5%'], answer:'D', reason:'Chemical modifiers constitute about 4–5% of the investment to modify physical properties.' },
+              { id:'1-12', text:'According to binder type, investments are classified into:', options:['A) Three types','B) Two types','C) Four types','D) Five types'], answer:'A', reason:'The three types are gypsum-bonded, phosphate-bonded, and silicate-bonded.' },
+              { id:'1-13', text:'Which binder is used in gypsum-bonded investment?', options:['A) Ammonium diacid phosphate','B) Alpha calcium sulphate hemihydrate','C) Silica sol','D) Boric acid'], answer:'B', reason:'The binder in gypsum-bonded investment is alpha calcium sulphate hemihydrate.' },
+              { id:'1-14', text:'Which chemical modifier acts as a reducing agent in gypsum-bonded investment?', options:['A) Sodium chloride','B) Boric acid','C) Powdered charcoal','D) Silica sol'], answer:'C', reason:'Powdered charcoal prevents oxidation of molten metal by creating a reducing atmosphere.' },
+              { id:'1-15', text:'To obtain higher expansion in phosphate-bonded investment, it is mixed with:', options:['A) Only water','B) Silica sol','C) Sodium chloride solution','D) Boric acid solution'], answer:'B', reason:'Manufacturers supply a special liquid (silica sol in water) to increase expansion.' },
+              { id:'1-16', text:'Why must the wax pattern be cleaned before investing?', options:['A) To increase its strength','B) To remove oil or grease that hinders wetting','C) To dissolve the wax','D) To reduce expansion'], answer:'B', reason:'Oils or grease prevent the investment from wetting the wax surface properly.' },
+              { id:'1-17', text:'A surfactant is applied to the wax pattern because:', options:['A) Wax is hydrophilic','B) Wax is hydrophobic','C) To harden the wax','D) To increase wax melting point'], answer:'B', reason:'Wax repels water (hydrophobic), so a surfactant enhances wettability.' },
+              { id:'1-18', text:'In gypsum-bonded investment, a metallic casting ring is used. In phosphate-bonded, what is used instead?', options:['A) Metallic ring as well','B) Plastic or rubber ring removed before heating','C) No ring at all','D) Ceramic ring'], answer:'B', reason:'Phosphate-bonded investments use plastic or rubber rings that are removed after setting.' },
+              { id:'1-19', text:'Vacuum investing is performed to:', options:['A) Increase setting expansion','B) Prevent air trapping on the pattern surface','C) Speed up setting','D) Reduce water content'], answer:'B', reason:'Vacuum removes air bubbles that could cause surface nodules.' },
+              { id:'1-20', text:'The initial heating step for both investment types is:', options:['A) 100°C to dry wax','B) 150–200°C to dry excess water and burn off wax','C) 500°C to sinter the investment','D) 700°C directly'], answer:'B', reason:'Both types are first heated to 150–200°C to remove water and eliminate wax.' },
+              { id:'1-21', text:'Gypsum-bonded investments cannot exceed which temperature?', options:['A) 500°C','B) 700°C','C) 900°C','D) 1030°C'], answer:'B', reason:'Above 700°C, gypsum-bonded investments decompose and release harmful gases.' },
+              { id:'1-22', text:'Phosphate-bonded investments for base metal alloys are heated up to:', options:['A) 700°C','B) 850°C','C) 1030°C','D) 1200°C'], answer:'C', reason:'For base metal alloys, phosphate-bonded investments are heated further to 1030°C.' },
+              { id:'1-23', text:'Setting expansion in gypsum-bonded investment is caused by:', options:['A) Silica transformation','B) Outward thrust of growing gypsum crystals','C) Water evaporation','D) Carbon combustion'], answer:'B', reason:'As gypsum crystals grow, they push outward, causing setting expansion.' },
+              { id:'1-24', text:'In gypsum-bonded investment, a lower water/powder ratio produces:', options:['A) Lower expansion','B) Higher expansion','C) No change','D) Lower strength'], answer:'B', reason:'Less water allows more crystal contact and greater expansion.' },
+              { id:'1-25', text:'Hygroscopic expansion in gypsum-bonded investment occurs when:', options:['A) The investment is heated','B) Investment contacts water during initial setting','C) The wax is burned out','D) The alloy is cast'], answer:'B', reason:'Water absorbed during setting causes additional expansion due to the gypsum binder.' },
+              { id:'1-26', text:'Which investment shows higher thermal expansion when mixed with silica sol?', options:['A) Gypsum-bonded','B) Phosphate-bonded','C) Both equally','D) Neither'], answer:'B', reason:'Phosphate-bonded investment with silica sol achieves higher thermal expansion.' },
+              { id:'1-27', text:'The shrinkage that occurs in gypsum-bonded investment during heating is due to:', options:['A) Silica expansion','B) Dehydration of gypsum','C) Gas release','D) Crystal growth'], answer:'B', reason:'Gypsum loses water when heated, causing shrinkage.' },
+              { id:'1-28', text:'In phosphate-bonded investment, early thermal shrinkage is caused by:', options:['A) Silica transformation','B) Decomposition of magnesium ammonium phosphate','C) Water absorption','D) Carbon combustion'], answer:'B', reason:'Decomposition of the binder releases ammonia and causes shrinkage.' },
+              { id:'1-29', text:'For gypsum-bonded investment above 700°C, calcium sulphate is reduced by:', options:['A) Oxygen','B) Residual carbon','C) Water vapor','D) Silica'], answer:'B', reason:'Residual carbon from wax reduces calcium sulphate, weakening the investment.' },
+              { id:'1-30', text:'Phosphate-bonded investment increases in strength at high temperature due to formation of:', options:['A) Calcium sulphate','B) Silicon-phosphates','C) Gypsum crystals','D) Carbon dioxide'], answer:'B', reason:'Silicon-phosphates form and strengthen the investment at high temperatures.' },
+              { id:'1-31', text:'Which gas is released from gypsum-bonded investment at high temperature?', options:['A) Ammonia','B) Sulfur dioxide','C) Oxygen','D) Hydrogen'], answer:'B', reason:'SO₂ and SO₃ are released, causing embrittlement and corrosion.' },
+              { id:'1-32', text:'The gas released from phosphate-bonded investment is recognized by:', options:['A) Color change','B) Odor of ammonia','C) No odor','D) Blue flame'], answer:'B', reason:'Ammonia (NH₃) evolution is noticeable by its characteristic odor.' },
+              { id:'1-33', text:'Which investment type can be used for base metal alloys?', options:['A) Gypsum-bonded only','B) Phosphate-bonded (with silica sol)','C) Neither','D) Both equally'], answer:'B', reason:'Phosphate-bonded investment with silica sol can withstand the high temperatures needed for base metals.' },
+              { id:'1-34', text:'The porosity present in gypsum-bonded investment serves to:', options:['A) Reduce expansion','B) Allow escape of gases','C) Increase strength','D) Prevent shrinkage'], answer:'B', reason:'Porosity permits gases to escape from the mold during casting.' },
+              { id:'1-35', text:'Which silica form requires a higher temperature to develop equal expansion as cristobalite?', options:['A) Quartz','B) Tridymite','C) Fused quartz','D) Amorphous silica'], answer:'A', reason:'Quartz needs more heat to achieve the same expansion level as cristobalite.' },
+              { id:'1-36', text:'The wax pattern is attached to which component before investing?', options:['A) Sprue former','B) Crucible former','C) Casting ring liner','D) Vacuum mixer'], answer:'B', reason:'The pattern is attached to a crucible former, which creates the sprue channel.' },
+              { id:'1-37', text:'A casting ring liner is used with gypsum-bonded investment to:', options:['A) Increase strength','B) Act as a cushion for mold expansion','C) Prevent gas escape','D) Reduce expansion'], answer:'B', reason:'The liner acts as a cushion, allowing the investment to expand freely.' },
+              { id:'1-38', text:'Mixing time up to one minute in gypsum-bonded investment produces:', options:['A) Lower expansion','B) Higher expansion','C) No effect','D) Faster setting'], answer:'B', reason:'Increased mixing time (up to 1 min) increases setting expansion.' },
+              { id:'1-39', text:'Fine silica particles in investment lead to:', options:['A) Lower expansion','B) Higher expansion','C) Reduced strength','D) Increased porosity'], answer:'B', reason:'Finer silica particles contribute to higher setting expansion.' },
+              { id:'1-40', text:'After burnout at 700°C for 30 minutes, the mold is ready for:', options:['A) Wax addition','B) Casting','C) Cooling to room temperature','D) Polishing'], answer:'B', reason:'Complete burnout at 700°C removes wax and induces thermal expansion, preparing the mold for casting.' },
+              { id:'1-41', text:'In gypsum-bonded investment, sodium chloride is added as a:', options:['A) Binder','B) Chemical modifier to increase thermal expansion','C) Refractory material','D) Reducing agent'], answer:'B', reason:'Sodium chloride and boric acid are modifiers added to increase the coefficient of thermal expansion.' },
+              { id:'1-42', text:'Which investment type uses ammonium diacid phosphate as binder?', options:['A) Gypsum-bonded','B) Phosphate-bonded','C) Silicate-bonded','D) Epoxy-bonded'], answer:'B', reason:'Ammonium diacid phosphate is the specific binder in phosphate-bonded investments.' },
+              { id:'1-43', text:'The refractory material in both gypsum and phosphate investments consists of:', options:['A) Calcium sulphate only','B) One or more polymorphic forms of silica','C) Charcoal','D) Boric acid'], answer:'B', reason:'Both types use silica polymorphs (quartz, cristobalite) as the refractory component.' },
+              { id:'1-44', text:'Which property is NOT desirable for investment materials?', options:['A) Chemical stability','B) High permeability','C) Excessive decomposition at high temperature','D) Fine particle size'], answer:'C', reason:'The mold should not decompose at high temperature; decomposition is undesirable.' },
+              { id:'1-45', text:'The lost wax technique is specifically used to:', options:['A) Create wax patterns','B) Make molds for casting restorations','C) Melt alloys','D) Polish castings'], answer:'B', reason:'The technique produces a mold cavity for casting metal restorations.' },
+              { id:'1-46', text:'During heating of the invested mold, the wax is eliminated:', options:['A) After the metal is cast','B) Before the metal is cast','C) Simultaneously with casting','D) After cooling'], answer:'B', reason:'Wax must be completely eliminated before molten metal is introduced.' },
+              { id:'1-47', text:'Which form of silica has exceedingly low thermal expansion?', options:['A) Cristobalite','B) Quartz','C) Tridymite','D) Fused quartz'], answer:'D', reason:'Fused quartz is known for its very low thermal expansion.' },
+              { id:'1-48', text:'The main role of silica in investment is:', options:['A) To act as a binder','B) To provide thermal expansion','C) To prevent oxidation','D) To increase setting time'], answer:'B', reason:'Silica\'s thermal expansion compensates for alloy shrinkage.' },
+              { id:'1-49', text:'Powdered charcoal in gypsum-bonded investment is a:', options:['A) Refractory material','B) Binder','C) Reducing agent','D) Wetting agent'], answer:'C', reason:'Charcoal creates a reducing atmosphere to prevent oxidation.' },
+              { id:'1-50', text:'Total expansion in both investment types:', options:['A) Is less than casting shrinkage','B) Equals exactly alloy shrinkage','C) Exceeds shrinkage and alloy casting shrinkage','D) Only occurs during setting'], answer:'C', reason:'The combined expansions overcome the shrinkage of the alloy during cooling.' }
+            ]
+          },
+          {
+            id: 'q2',
+            title: 'Casting Techniques',
+            description: 'Casting procedures, flame zones, sprue design, and pressure dynamics.',
+            icon: '⚙️',
+            isExternal: false,
+            questions: [
+              { id:'2-1', text:'What is the direct outcome of the casting process?', options:['A) Wax pattern hardening','B) Investment setting','C) Metal restoration forming','D) Mold cracking'], answer:'C', reason:'Molten alloy fills the mold to produce the final metal restoration.' },
+              { id:'2-2', text:'Which factor directly requires a heat source in casting?', options:['A) Wax elimination','B) Alloy melting','C) Investment expansion','D) Sprue attachment'], answer:'B', reason:'The alloy must be liquefied before being forced into the mold.' },
+              { id:'2-3', text:'Which torch tip distributes heat more evenly?', options:['A) Single tip','B) Multi tip','C) Flat tip','D) Round tip'], answer:'B', reason:'Multiple openings spread the flame over a wider area.' },
+              { id:'2-4', text:'Which flame zone protects the alloy from oxidation?', options:['A) Oxidizing','B) Combustion','C) Reducing','D) Mixing'], answer:'C', reason:'Excess fuel in this zone prevents oxide formation.' },
+              { id:'2-5', text:'What happens when water/powder ratio is too high?', options:['A) Smooth surface','B) Rough surface','C) Fast setting','D) High strength'], answer:'B', reason:'A diluted mix cannot reproduce fine details.' },
+              { id:'2-6', text:'What happens when water/powder ratio is too low?', options:['A) Better flow','B) Thicker mix','C) Lower expansion','D) Faster drying'], answer:'B', reason:'Insufficient water makes the mix stiff and unworkable.' },
+              { id:'2-7', text:'Excessive burnout temperature causes the mold wall to become:', options:['A) Smoother','B) Harder','C) Rougher','D) Thinner'], answer:'C', reason:'Heat breaks down the investment surface.' },
+              { id:'2-8', text:'Which gas released during high burnout damages noble metals?', options:['A) Oxygen','B) Nitrogen','C) Sulfur dioxide','D) Carbon dioxide'], answer:'C', reason:'Sulfur compounds cause embrittlement and corrosion.' },
+              { id:'2-9', text:'What does high casting pressure do to the mold surface?', options:['A) Polishes it','B) Seals it','C) Erodes it','D) Expands it'], answer:'C', reason:'Forceful metal impact damages the cavity wall.' },
+              { id:'2-10', text:'Why does pattern movement after investing cause defects?', options:['A) Air enters the investment','B) The interface is disturbed','C) Water evaporates','D) The wax melts'], answer:'B', reason:'The gap formed ruins surface detail transfer.' },
+              { id:'2-11', text:'What is the primary cause of casting nodules?', options:['A) Metal shrinkage','B) Wax residue','C) Trapped air','D) Fast cooling'], answer:'C', reason:'Air bubbles create empty spaces that fill with metal.' },
+              { id:'2-12', text:'How are small marginal nodules best managed?', options:['A) Remake the casting','B) Ignore them','C) Mark and remove them','D) Add more alloy'], answer:'C', reason:'A marking agent helps locate them for selective removal.' },
+              { id:'2-13', text:'What does inadequate vacuum during investing cause?', options:['A) Lower expansion','B) Multiple nodules','C) Faster setting','D) Smoother surface'], answer:'B', reason:'Air remains trapped against the pattern surface.' },
+              { id:'2-14', text:'Which step directly prevents occlusal surface nodules?', options:['A) High casting force','B) Gentle vibration','C) Rapid heating','D) Thick mix'], answer:'B', reason:'Excessive vibration forces air into the wax surface.' },
+              { id:'2-15', text:'What creates fins in a dental casting?', options:['A) Air bubbles','B) Metal contraction','C) Investment cracks','D) Wax expansion'], answer:'C', reason:'Molten metal flows into existing cracks.' },
+              { id:'2-16', text:'A weak investment mix increases the risk of:', options:['A) Nodules','B) Fins','C) Porosity','D) Roughness'], answer:'B', reason:'Weak material cracks more easily during heating.' },
+              { id:'2-17', text:'A pattern thinner than 0.3 mm leads to:', options:['A) Better detail','B) Fins','C) Less expansion','D) Faster burnout'], answer:'B', reason:'Thin sections promote crack formation.' },
+              { id:'2-18', text:'What accumulates inside the mold from incomplete wax elimination?', options:['A) Metal oxides','B) Combustion products','C) Water vapor','D) Investment dust'], answer:'B', reason:'Unburned carbon and gases remain in the cavity.' },
+              { id:'2-19', text:'Back pressure porosity prevents mold filling because:', options:['A) Metal is too cold','B) Air cannot escape','C) Wax remains','D) Sprue is blocked'], answer:'B', reason:'Trapped gas creates opposing pressure.' },
+              { id:'2-20', text:'A rounded shiny margin on a casting is a sign of:', options:['A) Complete fill','B) Back pressure','C) High heat','D) Smooth surface'], answer:'B', reason:'Gas prevented metal from reaching the margin.' },
+              { id:'2-21', text:'Suck back porosity develops when the sprue solidifies:', options:['A) After the mold fills','B) Before the mold fills','C) At the same time','D) Outside the ring'], answer:'B', reason:'Early solidification pulls metal back from the mold.' },
+              { id:'2-22', text:'A narrow sprue directly increases the risk of:', options:['A) Fins','B) Nodules','C) Suck back','D) Roughness'], answer:'C', reason:'Narrow channels cool and solidify faster.' },
+              { id:'2-23', text:'What does a long sprue cause during cooling?', options:['A) Faster wax removal','B) Early solidification','C) Higher expansion','D) Lower porosity'], answer:'B', reason:'Longer sprues lose heat more quickly.' },
+              { id:'2-24', text:'Where does suck back porosity typically appear?', options:['A) On the occlusal surface','B) Inside the mold cavity','C) Near the sprue attachment','D) On the investment surface'], answer:'C', reason:'The defect originates where the sprue meets the restoration.' },
+              { id:'2-25', text:'Why does a vent help prevent suck back?', options:['A) It heats the mold','B) It allows gas escape','C) It speeds solidification','D) It adds more alloy'], answer:'B', reason:'Vents reduce back pressure and delayed filling.' },
+              { id:'2-26', text:'What does a large casting without a vent most likely produce?', options:['A) Smooth surface','B) Suck back','C) Nodules','D) Fins'], answer:'B', reason:'Large volume requires extra gas escape paths.' },
+              { id:'2-27', text:'Which step comes immediately after wax elimination?', options:['A) Casting','B) Cooling','C) Investing','D) Polishing'], answer:'A', reason:'Once wax is removed, the mold is ready for alloy.' },
+              { id:'2-28', text:'What force drives metal into the mold during casting?', options:['A) Gravity','B) Air pressure','C) Wax expansion','D) Investment contraction'], answer:'B', reason:'Air pressure forces molten alloy into the cavity.' },
+              { id:'2-29', text:'When should the molten alloy be cast into the mold?', options:['A) Before wax burnout','B) Immediately after burnout','C) After mold cools','D) During wax elimination'], answer:'B', reason:'The hot mold prevents premature solidification.' },
+              { id:'2-30', text:'A shiny, rounded margin that is incomplete indicates:', options:['A) Proper casting technique','B) Back pressure porosity','C) High alloy fluidity','D) Correct sprue design'], answer:'B', reason:'Gas trapped at the margin prevents complete filling.' }
+            ]
+          },
+          {
+            id: 'q3',
+            title: 'Casting Defects',
+            description: 'Surface roughness, nodules, fins, porosity, and defect prevention strategies.',
+            icon: '🔍',
+            isExternal: false,
+            questions: [
+              { id:'3-1', text:'Which water/powder ratio change directly increases surface roughness?', options:['A) Decreasing the ratio slightly','B) Increasing the ratio excessively','C) Maintaining the manufacturer\'s ratio','D) Using distilled water only'], answer:'B', reason:'Excess water thins the investment, preventing fine detail reproduction.' },
+              { id:'3-2', text:'What is the primary mechanism of sulfur compound contamination?', options:['A) Absorption through the sprue','B) Thermal disintegration of investment','C) Reaction with water vapor','D) Diffusion from the casting ring'], answer:'B', reason:'Excessive heat breaks down calcium sulphate, releasing SO₂ and SO₃.' },
+              { id:'3-3', text:'Why does high casting pressure cause roughness?', options:['A) It accelerates metal solidification','B) It erodes the mold surface mechanically','C) It traps air bubbles in the metal','D) It increases mold temperature'], answer:'B', reason:'High-velocity molten metal impacts and damages the cavity wall.' },
+              { id:'3-4', text:'What happens to the investment-pattern interface during vibration?', options:['A) It becomes chemically bonded','B) Physical separation occurs','C) Thermal expansion increases','D) Water absorption rises'], answer:'B', reason:'Vibration breaks the intimate contact, creating gaps.' },
+              { id:'3-5', text:'How does a wetting agent prevent investment separation?', options:['A) By dissolving the wax surface','B) By reducing surface tension','C) By increasing water ratio','D) By hardening the wax'], answer:'B', reason:'Surfactant lowers surface tension, allowing investment to adhere.' },
+              { id:'3-6', text:'What distinguishes a large nodule from a small one clinically?', options:['A) Large nodules require remaking','B) Large nodules are easier to polish','C) Small nodules cannot be removed','D) Large nodules indicate high expansion'], answer:'A', reason:'Large nodules are too deep to correct without compromising restoration.' },
+              { id:'3-7', text:'Why is a liquid marking agent used for small nodules?', options:['A) To dissolve the nodules','B) To stain and locate high spots','C) To soften the metal','D) To measure nodule depth'], answer:'B', reason:'The agent transfers to articulating paper or reveals raised areas.' },
+              { id:'3-8', text:'Which factor most directly links inadequate vacuum to multiple nodules?', options:['A) Increased water absorption','B) Air entrapment on the pattern','C) Faster investment setting','D) Higher thermal expansion'], answer:'B', reason:'Poor vacuum leaves microscopic air bubbles on the wax surface.' },
+              { id:'3-9', text:'Why does improper brush technique create nodules?', options:['A) It scratches the wax pattern','B) It pushes air against the surface','C) It removes the wetting agent','D) It heats the pattern locally'], answer:'B', reason:'Brushing action traps air in complex anatomy.' },
+              { id:'3-10', text:'What is the functional consequence of a nodule on a casting margin?', options:['A) Improved retention','B) Interference with crown seating','C) Faster corrosion','D) Higher strength'], answer:'B', reason:'Marginal nodules prevent complete seating of the restoration.' },
+              { id:'3-11', text:'How does a thin wax pattern (<0.3 mm) contribute to fin formation?', options:['A) It melts too quickly','B) It provides less investment support','C) It absorbs more water','D) It expands excessively'], answer:'B', reason:'Thin patterns allow the investment to crack more easily in that area.' },
+              { id:'3-12', text:'Why does excessive cooling of the mold cause casting failure?', options:['A) Metal expands too much','B) Metal solidifies before filling','C) Investment contracts rapidly','D) Wax re-condenses inside'], answer:'B', reason:'Cold mold accelerates solidification, stopping metal flow.' },
+              { id:'3-13', text:'What role does carbon monoxide play in incomplete burnout?', options:['A) It improves alloy flow','B) It indicates incomplete elimination','C) It strengthens the investment','D) It reduces surface tension'], answer:'B', reason:'CO presence means wax was not fully oxidized.' },
+              { id:'3-14', text:'Why does back pressure porosity produce a rounded shiny margin?', options:['A) Metal solidifies slowly','B) Gas cushions the advancing metal','C) Investment melts locally','D) Wax coats the margin'], answer:'B', reason:'Trapped gas forms a smooth rounded interface with molten metal.' },
+              { id:'3-15', text:'What is the critical difference between back pressure and suck back porosity?', options:['A) One occurs at the sprue, the other anywhere','B) One requires high pressure, the other low','C) One affects noble metals only','D) One is visible externally'], answer:'A', reason:'Back pressure occurs at margins; suck back at the sprue junction.' },
+              { id:'3-16', text:'Why does a narrow sprue solidify faster than a wide one?', options:['A) Lower thermal conductivity','B) Smaller volume to mass ratio','C) Higher specific heat','D) Faster heat absorption'], answer:'B', reason:'Narrow sprues have less metal volume, losing heat quicker.' },
+              { id:'3-17', text:'How does a vent prevent suck back porosity?', options:['A) By heating the sprue','B) By allowing gas escape','C) By slowing solidification','D) By adding more metal'], answer:'B', reason:'Vents release back pressure, delaying sprue solidification.' },
+              { id:'3-18', text:'What happens to the metal in the sprue during suck back?', options:['A) It expands outward','B) It contracts toward the mold','C) It remains liquid longer','D) It oxidizes rapidly'], answer:'B', reason:'Solidifying sprue pulls molten metal back from the mold.' },
+              { id:'3-19', text:'Why is a large casting more prone to suck back without a vent?', options:['A) It requires more metal','B) It traps more gas','C) It cools unevenly','D) It expands more'], answer:'B', reason:'More gas is generated, increasing back pressure.' },
+              { id:'3-20', text:'What causes a wax pattern to be pushed outward during setting?', options:['A) Metal shrinkage','B) Setting expansion','C) Thermal contraction','D) Water evaporation'], answer:'B', reason:'Growing investment crystals exert outward force on thin margins.' },
+              { id:'3-21', text:'How does distortion during wax removal transfer to the casting?', options:['A) The investment copies the distorted shape','B) The wax melts into a new shape','C) The metal flows differently','D) The sprue compensates automatically'], answer:'A', reason:'Investment records the distorted wax geometry faithfully.' },
+              { id:'3-22', text:'What characterizes a worm line on a casting?', options:['A) A raised nodular line','B) A crack from poor wax adaptation','C) A smooth rounded groove','D) A porous surface area'], answer:'B', reason:'Worm lines originate from cracked or poorly sealed wax patterns.' },
+              { id:'3-23', text:'Why does reheating an invested pattern increase fin risk?', options:['A) It weakens the investment','B) It melts the wax twice','C) It expands the ring','D) It absorbs moisture'], answer:'A', reason:'Thermal cycling causes micro-cracks in the investment.' },
+              { id:'3-24', text:'What is the clinical implication of multiple small nodules on the fitting surface?', options:['A) Easy removal with polishing','B) Remaking is required','C) No effect on fit','D) Improved retention'], answer:'B', reason:'Multiple defects compromise the entire fitting surface.' },
+              { id:'3-25', text:'Why does a pattern too close to the ring periphery cause fins?', options:['A) Less investment thickness','B) Higher temperature gradient','C) Faster wax burnout','D) Increased water absorption'], answer:'A', reason:'Thin investment layer cracks more easily near the ring edge.' },
+              { id:'3-26', text:'How does insufficient casting force affect mold filling?', options:['A) Metal flows too fast','B) Metal stops before complete fill','C) Investment expands excessively','D) Wax re-solidifies'], answer:'B', reason:'Low force cannot overcome surface tension and back pressure.' },
+              { id:'3-27', text:'What directly causes the "no casting at all" scenario?', options:['A) Complete wax elimination','B) Incomplete wax elimination','C) High vacuum investing','D) Slow heating rate'], answer:'B', reason:'Combustion products completely block the mold cavity.' },
+              { id:'3-28', text:'Why does inadequate heating of metal cause incomplete castings?', options:['A) Metal viscosity increases','B) Metal solidifies too early','C) Investment cracks','D) Wax re-melts'], answer:'B', reason:'Insufficiently heated metal loses fluidity before filling.' },
+              { id:'3-29', text:'How does fine particle size of investment help avoid defects?', options:['A) By increasing expansion','B) By producing smoother surfaces','C) By reducing setting time','D) By absorbing more water'], answer:'B', reason:'Fine particles reproduce wax pattern details more accurately.' },
+              { id:'3-30', text:'What is the main reason for using a casting ring liner?', options:['A) To absorb moisture','B) To cushion expansion','C) To conduct heat','D) To hold wax'], answer:'B', reason:'The liner allows the investment to expand freely without restraint.' },
+              { id:'3-31', text:'Why does a longer sprue increase suck back risk?', options:['A) It retains more heat','B) It loses heat faster','C) It absorbs more gas','D) It expands more'], answer:'B', reason:'Longer path to the mold cools the metal before filling completes.' },
+              { id:'3-32', text:'What is the difference between a fin and a nodule?', options:['A) Nodules are round, fins are linear','B) Fins are internal, nodules are external','C) Nodules come from bubbles, fins from cracks','D) Fins are removable, nodules are not'], answer:'C', reason:'Nodules form from air bubbles; fins from investment cracks.' },
+              { id:'3-33', text:'Why does a reducing atmosphere from incomplete burnout not prevent defects?', options:['A) It still blocks mold filling','B) It oxidizes the metal','C) It weakens the investment','D) It melts the wax again'], answer:'A', reason:'Physical blockage of the mold outweighs any chemical benefit.' },
+              { id:'3-34', text:'How can you distinguish back pressure porosity from suck back radiographically?', options:['A) Location relative to sprue','B) Size of the defect','C) Shape of the porosity','D) Metal density'], answer:'A', reason:'Back pressure occurs at margins; suck back at the sprue junction.' },
+              { id:'3-35', text:'Why does a thick mix (low water ratio) not always prevent roughness?', options:['A) It traps air more easily','B) It cannot flow into fine details','C) It expands too much','D) It sets too slowly'], answer:'B', reason:'High viscosity prevents complete adaptation to the pattern.' },
+              { id:'3-36', text:'What is the effect of mixing time up to 1 minute on defect formation?', options:['A) Reduces nodules','B) Increases expansion but may trap air','C) Eliminates fins','D) Prevents suck back'], answer:'B', reason:'Longer mixing increases expansion but can incorporate air bubbles.' },
+              { id:'3-37', text:'Why does soldering investment sometimes use quartz instead of cristobalite?', options:['A) Lower expansion needed','B) Higher strength required','C) Faster setting time','D) Better color contrast'], answer:'A', reason:'Quartz provides less expansion, suitable for soldering.' },
+              { id:'3-38', text:'How does a multi-orifice tip indirectly reduce casting defects?', options:['A) By melting metal faster','B) By heating more evenly','C) By reducing oxidation','D) By increasing pressure'], answer:'B', reason:'Even heating prevents localized overheating and thermal cracks.' },
+              { id:'3-39', text:'Why is residual carbon from wax pattern harmful even if no gas is released?', options:['A) It reacts with the alloy','B) It occupies mold space','C) It melts the investment','D) It cools the metal'], answer:'B', reason:'Physical space taken by carbon prevents metal entry.' },
+              { id:'3-40', text:'What is the most critical step to avoid all surface defects?', options:['A) High burnout temperature','B) Proper pattern cleaning and wetting','C) Fast casting force','D) Thick investment mix'], answer:'B', reason:'Clean, wetted pattern ensures accurate detail transfer without bubbles.' }
+            ]
+          },
+          {
+            id: 'q4',
+            title: 'Milling & Subtractive',
+            description: 'CAD/CAM systems, milling axes, bur selection, and digital workflows.',
+            icon: '🏭',
+            isExternal: false,
+            questions: [
+              { id:'4-1', text:'What is the fundamental principle of subtractive manufacturing?', options:['A) Adding material layer by layer','B) Removing material from a solid block','C) Melting and pouring into a mold','D) Pressing powder into shape'], answer:'B', reason:'Subtractive manufacturing cuts away material from a larger block to create the final shape.' },
+              { id:'4-2', text:'Which CAD/CAM system allows components from different companies?', options:['A) Closed system','B) Open system','C) Hybrid system','D) Integrated system'], answer:'B', reason:'Open systems permit flexibility by using scanners, software, and mills from various manufacturers.' },
+              { id:'4-3', text:'What characterizes a closed CAD/CAM system?', options:['A) Multi vendor compatibility','B) Single supplier restriction','C) Lower initial cost','D) Higher flexibility'], answer:'B', reason:'Closed systems limit all components to one manufacturer for tighter control.' },
+              { id:'4-4', text:'Which milling device moves in X, Y, and Z directions only?', options:['A) 3 axis','B) 4 axis','C) 5 axis','D) 6 axis'], answer:'A', reason:'3 axis machines operate along three linear spatial axes.' },
+              { id:'4-5', text:'What advantage does a 5 axis milling unit have over a 3 axis unit?', options:['A) Lower cost','B) Shorter milling time for simple shapes','C) Ability to machine complex geometries','D) Simpler software control'], answer:'C', reason:'5 axis units add rotational movements for undercuts and fine details.' },
+              { id:'4-6', text:'Why is a 4 axis milling device better for bridge constructions?', options:['A) It uses smaller burs','B) The extra axis improves access','C) It requires less material','D) It works faster on single crowns'], answer:'B', reason:'The additional axis allows better handling of large vertical height.' },
+              { id:'4-7', text:'What is the primary limitation of milling accuracy?', options:['A) Software resolution','B) Smallest bur diameter','C) Spindle speed','D) Material hardness'], answer:'B', reason:'Any detail smaller than the bur diameter will be over milled.' },
+              { id:'4-8', text:'What happens when a surface detail is smaller than the milling bur?', options:['A) It is reproduced perfectly','B) It is over milled and lost','C) It becomes sharper','D) It doubles in size'], answer:'B', reason:'The bur cannot access fine details, removing them completely.' },
+              { id:'4-9', text:'Which zirconia restoration step still requires conventional laboratory work?', options:['A) Framework milling','B) Manual veneering with porcelain','C) Digital scanning','D) CAD design'], answer:'B', reason:'Zirconia frameworks need manual porcelain layering by a technician.' },
+              { id:'4-10', text:'What is a major disadvantage of subtractive manufacturing?', options:['A) High material waste','B) Poor accuracy','C) Slow digital workflow','D) Limited material choice'], answer:'A', reason:'Machining removes more material than remains in the final product.' },
+              { id:'4-11', text:'Why is the initial cost of CAD/CAM considered a disadvantage?', options:['A) Software is always outdated','B) High investment required upfront','C) Machines break down often','D) Training is free but machines are not'], answer:'B', reason:'Purchasing scanners, software, and mills requires significant capital.' },
+              { id:'4-12', text:'Which milling axis adds the ability to rotate the tension bridge?', options:['A) 3rd axis','B) 4th axis','C) 5th axis','D) 2nd axis'], answer:'B', reason:'The 4th axis typically adds rotational movement (A axis).' },
+              { id:'4-13', text:'What does the 5th axis in a milling machine control?', options:['A) X axis movement','B) Rotating milling spindle','C) Material feed rate','D) Vacuum suction'], answer:'B', reason:'The 5th axis rotates the spindle for complex angulations.' },
+              { id:'4-14', text:'How does a 3 axis mill handle the underside of a restoration?', options:['A) It cannot reach undercuts','B) It rotates the material 180° manually','C) It uses longer burs','D) It relies on software only'], answer:'B', reason:'The component must be flipped during processing.' },
+              { id:'4-15', text:'What is a direct dental application of milling?', options:['A) Clear aligner printing','B) Crown and coping fabrication','C) Wax pattern investment','D) Impression taking'], answer:'B', reason:'Milling produces crowns, copings, inlays, onlays, and frameworks.' },
+              { id:'4-16', text:'Which of the following can be milled as a burnout pattern?', options:['A) Silicone impression','B) Wax or resin pattern for casting','C) Stone model','D) Metal crown directly'], answer:'B', reason:'Milled wax or resin patterns are used in the lost wax technique.' },
+              { id:'4-17', text:'What is the purpose of simulation software before milling?', options:['A) To estimate material cost','B) To confirm milling capability','C) To design the restoration','D) To polish the final product'], answer:'B', reason:'Simulation verifies that the milling unit can execute the tool path.' },
+              { id:'4-18', text:'What does CAM software translate the CAD model into?', options:['A) A physical model','B) A tool path for CNC','C) A 2D image','D) A wax pattern'], answer:'B', reason:'CAM generates instructions for the CNC machine\'s movements.' },
+              { id:'4-19', text:'Why are chairside systems convenient for patients?', options:['A) Lower cost','B) Same day restorations','C) No anesthesia needed','D) Better material choice'], answer:'B', reason:'Chairside CAD/CAM allows fabrication in a single visit.' },
+              { id:'4-20', text:'Who typically performs CAM production in a laboratory system?', options:['A) The dentist','B) The dental technician','C) The patient','D) The software automatically'], answer:'B', reason:'Laboratory systems rely on technicians for milling and finishing.' },
+              { id:'4-21', text:'What type of bur is specifically used for occlusal reduction?', options:['A) Step bur','B) Cylinder bur','C) Tapered bur','D) Round bur'], answer:'B', reason:'Cylinder burs create flat surfaces ideal for occlusal reduction.' },
+              { id:'4-22', text:'Which bur is indicated for opening margins and surface finishing?', options:['A) Cylinder bur','B) Step bur','C) Flame bur','D) Wheel bur'], answer:'B', reason:'Step burs are designed for precise margin adjustment and finishing.' },
+              { id:'4-23', text:'Why is a cylinder bur preferred for adjusting heavy occlusal contacts?', options:['A) It leaves a rough surface','B) It creates a flat, even surface','C) It polishes the metal','D) It cuts faster than any other bur'], answer:'B', reason:'The flat end of a cylinder bur produces controlled, flat reductions.' },
+              { id:'4-24', text:'What happens if a 5 axis mill is used for a simple crown instead of a 3 axis?', options:['A) Higher accuracy but slower','B) No difference in outcome','C) The crown will have undercuts','D) Material waste increases'], answer:'A', reason:'5 axis offers more precision but longer milling time for simple shapes.' },
+              { id:'4-25', text:'What is a key advantage of open CAD/CAM systems?', options:['A) Tighter quality control','B) Compatibility with multiple scanners','C) Lower software cost','D) Single training requirement'], answer:'B', reason:'Open systems allow mixing components from different brands.' },
+              { id:'4-26', text:'Why might a closed system still be preferred in some labs?', options:['A) Lower initial investment','B) More controlled and predictable workflow','C) Faster milling speed','D) Ability to use any material'], answer:'B', reason:'Single vendor systems offer seamless integration and support.' },
+              { id:'4-27', text:'What does "over milling" refer to?', options:['A) Milling too fast','B) Removing details smaller than the bur','C) Using too many burs','D) Milling the same restoration twice'], answer:'B', reason:'Fine details are lost because the bur cannot resolve them.' },
+              { id:'4-28', text:'How does a step bur differ from a cylinder bur in clinical use?', options:['A) Step bur is for finishing, cylinder for reduction','B) Step bur is for occlusal reduction','C) Cylinder bur is for margin opening','D) Both are identical'], answer:'A', reason:'Step bur finishes surfaces; cylinder bur reduces flat areas.' },
+              { id:'4-29', text:'What is the main reason for using a cylinder bur for occlusal reduction?', options:['A) It produces a concave surface','B) It produces a predictable flat surface','C) It leaves a rough texture','D) It cannot be used on metal'], answer:'B', reason:'The flat end creates even, controlled reduction.' },
+              { id:'4-30', text:'Which milling axis configuration allows machining of implant bars with complex angulations?', options:['A) 3 axis','B) 4 axis','C) 5 axis','D) 2 axis'], answer:'C', reason:'5 axis provides rotational movements for complex geometries.' },
+              { id:'4-31', text:'What is the role of a verification jig in digital dentistry?', options:['A) To mill crowns','B) To check passive fit of frameworks','C) To scan impressions','D) To design wax patterns'], answer:'B', reason:'Verification jigs confirm the accuracy of milled frameworks.' },
+              { id:'4-32', text:'Why does milling allow the use of zirconia and titanium?', options:['A) These materials are soft','B) The process can cut hard materials precisely','C) Only milling works with polymers','D) These materials cannot be printed'], answer:'B', reason:'High speed milling machines are capable of cutting ceramics and metals.' },
+              { id:'4-33', text:'What is a disadvantage of increased production capacity with milling?', options:['A) Lower quality','B) Higher material waste per unit','C) Slower digital workflow','D) Need for more technicians'], answer:'B', reason:'Subtractive manufacturing inherently wastes material.' },
+              { id:'4-34', text:'Why is standardized manufacturing an advantage of milling?', options:['A) Each restoration is unique','B) Consistent quality across many units','C) Less automation required','D) Lower bur cost'], answer:'B', reason:'CNC milling produces identical, repeatable outcomes.' },
+              { id:'4-35', text:'What bur characteristic most affects marginal fit of a milled crown?', options:['A) Bur length','B) Bur diameter','C) Bur color','D) Bur material'], answer:'B', reason:'The smallest bur diameter determines the finest detail possible.' },
+              { id:'4-36', text:'How does a 4 axis mill save material compared to 3 axis?', options:['A) By using smaller blocks','B) By allowing better orientation of the restoration','C) By milling faster','D) By using less water'], answer:'B', reason:'The extra axis optimizes nesting and reduces waste.' },
+              { id:'4-37', text:'What is the purpose of a diagnostic wax up in milling workflow?', options:['A) To mill directly','B) To scan and design the final restoration','C) To replace the final crown','D) To polish the milled surface'], answer:'B', reason:'Diagnostic wax ups are scanned and used for digital design.' },
+              { id:'4-38', text:'Why are splints and orthodontic retainers milled rather than printed?', options:['A) Milling is faster','B) Milled materials may be stronger for long term use','C) Printing is not possible','D) Milling requires no post processing'], answer:'B', reason:'Subtractive manufacturing can produce durable, accurate appliances.' },
+              { id:'4-39', text:'What is the clinical consequence of over milled margins?', options:['A) Better fit','B) Open margins and poor retention','C) Easier cementation','D) Stronger restoration'], answer:'B', reason:'Over milling removes margin detail, leading to gaps.' },
+              { id:'4-40', text:'Which bur is best for final surface polishing of a milled restoration?', options:['A) Cylinder bur','B) Step bur (fine grit)','C) Course diamond bur','D) Carbide bur'], answer:'B', reason:'Fine step burs are designed for surface finishing and polishing.' }
+            ]
+          },
+          {
+            id: 'q5',
+            title: 'Dental 3D Printing',
+            description: 'Additive manufacturing technologies, clinical applications, and post-processing.',
+            icon: '🖨️',
+            isExternal: false,
+            questions: [
+              { id:'5-1', text:'Which step in the 3D printing workflow is responsible for converting a 3D mesh into a series of 2D cross-sections?', options:['A) Digital Impression','B) Post-Curing','C) Slicing','D) CAD Designing'], answer:'C', reason:'Slicing software "cuts" the digital model into thin horizontal layers, creating specific path instructions for the printer.' },
+              { id:'5-2', text:'In terms of material economy, why is 3D printing often preferred over milling?', options:['A) It is an "Additive" process, using only the material required for the object','B) It uses cheaper, non-medical grade plastics','C) It requires no electricity to operate','D) It is a "Subtractive" process that recycles all dust automatically'], answer:'A', reason:'Unlike milling, which carves an object out of a larger block (creating waste), 3D printing builds from nothing, reducing material loss.' },
+              { id:'5-3', text:'What is the typical solidification time for material in a Fused Deposition Modeling (FDM) printer?', options:['A) Approximately 0.1 second','B) Exactly 10 seconds','C) 1 to 2 minutes','D) 5 minutes'], answer:'A', reason:'FDM extrudes melted plastic that must cool and solidify almost instantly (0.1s) to maintain structural integrity.' },
+              { id:'5-4', text:'Which technology is best suited for producing a multi-colored dental model in a single print run?', options:['A) FDM','B) PolyJet / MultiJet','C) SLA','D) Laser Sintering'], answer:'B', reason:'PolyJet technology can spray different photopolymers (materials/colors) simultaneously through multiple nozzles.' },
+              { id:'5-5', text:'What is the light source typically used in Stereolithography (SLA) to harden the resin?', options:['A) Infrared Heat','B) Visible Blue Light only','C) UV Light or Laser','D) Ultrasonic waves'], answer:'C', reason:'SLA resins are "photosensitive," meaning they react to specific wavelengths of ultraviolet light or laser beams to trigger polymerization.' },
+              { id:'5-6', text:'What is the physical state of the material before it is processed in an SLA printer?', options:['A) Liquid','B) Powder','C) Solid Filament','D) Gas'], answer:'A', reason:'SLA belongs to the "Vat Photopolymerization" category, which utilizes a container (vat) filled with liquid resin.' },
+              { id:'5-7', text:'In an SLA system, the "Building Platform" moves to allow:', options:['A) The laser to cool down','B) Fresh resin to flow over the previously cured layer','C) The technician to check the color','D) The internal fan to rotate'], answer:'B', reason:'After one layer is cured, the platform moves so that a new thin film of liquid resin can cover the area for the next layer.' },
+              { id:'5-8', text:'What is the approximate layer thickness used for high-precision dental SLA prints?', options:['A) 1–5 mm','B) 500–1000 μm','C) 50–200 μm','D) 10–20 cm'], answer:'C', reason:'Thin layers (measured in microns) ensure high detail and accuracy, essential for dental restorations to fit properly.' },
+              { id:'5-9', text:'Which of the following is a key post-processing step for Binder Jetting (Inkjet) prints?', options:['A) Support removal only','B) Freezing at sub-zero temperatures','C) Heat treatment','D) Submerging in acid'], answer:'C', reason:'Binder jetting creates a "green" object held together by glue; heat treatment (sintering) is required to fuse the particles into a strong solid.' },
+              { id:'5-10', text:'What is the "Ink" used in the Binder Jetting process?', options:['A) Molten metal','B) Binding liquid (Adhesive)','C) Ceramic slurry','D) UV-reactive resin'], answer:'B', reason:'The inkjet nozzles eject a liquid binder onto a bed of powder (plaster/ceramic) to stick the particles together selectively.' },
+              { id:'5-11', text:'Powder Bed Fusion (PBF) uses a high-power laser to:', options:['A) Glue powder together','B) Melt, fuse, or sinter metal powder','C) Scan the patient\'s teeth','D) Cut the finished object into pieces'], answer:'B', reason:'PBF is a thermal process where the laser provides enough energy to physically join metal particles at a molecular level.' },
+              { id:'5-12', text:'Laser Sintering and Laser Melting are examples of:', options:['A) FDM technology','B) Powder Bed Fusion','C) Subtractive Milling','D) Analog Casting'], answer:'B', reason:'Both involve using a laser to bond particles within a "bed" of powder, typically for metal structures in dentistry.' },
+              { id:'5-13', text:'Which of the following is an "Indirect Application" of 3D printing?', options:['A) Surgical Guide','B) Clear Aligner','C) Resin castable pattern for a bridge','D) Custom Tray'], answer:'C', reason:'"Indirect" means the printed object is a temporary pattern used to create the final restoration through another process like casting.' },
+              { id:'5-14', text:'Why is 3D printing considered superior for "Surgical Guides"?', options:['A) It makes the guide look more professional','B) It allows for extremely high accuracy based on 3D CT/Scan data','C) It is the only way to make them out of wood','D) It eliminates the need for surgery'], answer:'B', reason:'Digital guides require high precision to guide the implant drill; 3D printing translates the digital plan into a physical guide with micron-level accuracy.' },
+              { id:'5-15', text:'Orthodontic "Positioning Trays" are used to:', options:['A) Hold brackets in a pre-planned position for indirect bonding','B) Bleach the patient\'s teeth','C) Carry dental instruments','D) Protect the patient from X-rays'], answer:'A', reason:'These trays are custom-printed to transfer the digital setup of orthodontic brackets directly to the patient\'s teeth.' },
+              { id:'5-16', text:'Currently, most 3D-printed definitive crowns are made of:', options:['A) Pure Gold','B) Zirconia powder','C) Resin or Composite-filled resins','D) Plaster'], answer:'C', reason:'While metal and ceramic printing exist, the most common "printed" crowns in daily practice are made from biocompatible resins.' },
+              { id:'5-17', text:'What is the primary purpose of "Post-Curing" in a UV oven?', options:['A) To dry the water off the object','B) To ensure the polymerization is complete and the object reaches full strength','C) To melt away the support structures','D) To change the flavor of the resin'], answer:'B', reason:'The printer only "green cures" the resin; a final UV bath ensures all chemical monomers have reacted, making the part strong and biocompatible.' },
+              { id:'5-18', text:'Why must uncured resin be handled with gloves?', options:['A) Because it is very cold','B) To prevent fingerprints on the crown','C) Because liquid monomers can cause skin irritation or allergic reactions','D) To keep the resin from drying out'], answer:'C', reason:'Liquid resins contain chemicals that are sensitizers; direct contact with skin should be avoided until the material is fully cured.' },
+              { id:'5-19', text:'"Washing" a 3D-printed resin object is done to:', options:['A) Sharpen the edges','B) Remove excess uncured liquid resin from the surface','C) Prepare it for the patient to eat','D) Sterilize it using boiling water'], answer:'B', reason:'After printing, the object is covered in a sticky layer of liquid resin that must be dissolved (usually with Isopropyl Alcohol) before final curing.' },
+              { id:'5-20', text:'Support structures in 3D printing are necessary because:', options:['A) They provide the color of the final tooth','B) They support overhanging parts that would otherwise collapse during printing','C) They act as a handle for the dentist','D) They contain the serial number of the printer'], answer:'B', reason:'Additive manufacturing builds in mid-air sometimes; supports act as scaffolding for layers that don\'t have a previous layer beneath them.' },
+              { id:'5-21', text:'A major disadvantage of current 3D-printed permanent restorations is:', options:['A) They are too fast to produce','B) They may have lower strength and wear resistance than milled Zirconia','C) They are always invisible to the eye','D) They cannot be scanned digitally'], answer:'B', reason:'Current dental resins are improved but still generally lack the fracture toughness and wear resistance of solid ceramic blocks used in milling.' },
+              { id:'5-22', text:'Which of these is a benefit of "Digital Storage" of models?', options:['A) It makes the models heavier','B) It requires a large physical warehouse','C) It allows for "reprinting" the model anytime without taking a new impression','D) It prevents the use of 3D printers'], answer:'C', reason:'Once a model is digital, it can be saved on a hard drive and recreated perfectly if the original is lost or broken.' },
+              { id:'5-23', text:'"Learning Curve" in 3D printing refers to:', options:['A) The curved path the laser takes','B) The requirement for staff training to master software and hardware operations','C) The shape of the resin vat','D) The time it takes for a printer to warm up'], answer:'B', reason:'Adopting digital technology is not "plug and play"; it requires significant technical education.' },
+              { id:'5-24', text:'3D printing increases "Laboratory Efficiency" because:', options:['A) It eliminates the need for any human staff','B) It allows for the simultaneous production of multiple cases','C) It uses more material than manual methods','D) It makes the crowns taste better'], answer:'B', reason:'A printer can be loaded with dozens of different crowns/models and print them all in one cycle, unlike a milling machine which is often limited to a few.' },
+              { id:'5-25', text:'Which technology extrudes material through a heated nozzle?', options:['A) SLA','B) PBF','C) FDM','D) PolyJet'], answer:'C', reason:'Fused Deposition Modeling (FDM) melts a filament and pushes it through a nozzle, similar to a hot glue gun.' },
+              { id:'5-26', text:'Why might "Milling" be preferred over "3D Printing" for a Zirconia crown today?', options:['A) Milling is a newer technology','B) Milled Zirconia is currently more established with higher proven strength','C) 3D printing doesn\'t use computers','D) Milling uses liquid resin which is stronger'], answer:'B', reason:'Zirconia milling from a pre-sintered block is the current "gold standard" for strength; 3D printing zirconia is still maturing.' },
+              { id:'5-27', text:'What happens to the unbound powder in a Powder Bed Fusion (PBF) system?', options:['A) It is destroyed by the laser','B) It acts as a support for the object and can often be reused','C) It is glued to the platform permanently','D) It turns into gas and is exhausted'], answer:'B', reason:'The surrounding powder prevents the melted parts from falling and can be sieved and recycled for the next print.' },
+              { id:'5-28', text:'Accuracy in 3D printing is most affected by:', options:['A) The brand of the computer mouse','B) Layer thickness and the resolution of the light/laser source','C) The room\'s wall color','D) The patient\'s age'], answer:'B', reason:'Precision is determined by how thin the layers are (Z-axis) and how small the laser spot or pixel size is (X-Y axis).' },
+              { id:'5-29', text:'A "Clear Aligner" is produced by:', options:['A) Printing the plastic aligner directly onto the tooth','B) Printing a series of accurate models and vacuum-forming clear plastic over them','C) Carving the aligner out of a block of ice','D) Printing a metal guide to move the teeth'], answer:'B', reason:'Most clear aligner systems (like Invisalign) rely on 3D-printed "staged" models as the foundation for thermoforming.' },
+              { id:'5-30', text:'Maxillofacial prostheses are often 3D printed because:', options:['A) They require simple, repetitive shapes','B) They involve complex, patient-specific geometries that are difficult to hand-craft','C) They must be made of metal only','D) 3D printing makes them weigh nothing'], answer:'B', reason:'Facial reconstruction requires matching the patient\'s unique anatomy; 3D printing excels at custom, organic shapes.' },
+              { id:'5-31', text:'Which of the following is a "Direct" restoration?', options:['A) Wax pattern for a crown','B) A temporary bridge printed in biocompatible resin','C) A plaster model of the lower jaw','D) A digital file on a USB drive'], answer:'B', reason:'A printed temporary bridge goes directly into the patient\'s mouth for clinical use.' },
+              { id:'5-32', text:'What is a "Bite Splint" used for?', options:['A) To help the patient chew faster','B) To protect the teeth and jaw joint from grinding (Bruxism)','C) To replace missing front teeth','D) To measure the patient\'s temperature'], answer:'B', reason:'Splints/Night guards are common 3D-printed appliances used to manage TMJ disorders and bruxism.' },
+              { id:'5-33', text:'The term "Additive Manufacturing" refers to:', options:['A) Adding the cost of the material to the bill','B) Building an object by adding layers of material','C) Adding more staff to the laboratory','D) Adding water to the resin'], answer:'B', reason:'It is the official industrial umbrella term for 3D printing, focusing on the "addition" of material.' },
+              { id:'5-34', text:'In "Binder Jetting," what remains of the powder that was NOT sprayed with binder?', options:['A) It becomes a solid block','B) It remains loose powder','C) It evaporates','D) It turns into resin'], answer:'B', reason:'Only the areas hit by the binder nozzles become solid; the rest stays as powder.' },
+              { id:'5-35', text:'Which of these materials is typically used in FDM?', options:['A) Liquid Photopolymer','B) Thermoplastic Filament (e.g., PLA)','C) Cobalt-Chromium Powder','D) Plaster of Paris'], answer:'B', reason:'FDM relies on spools of plastic wire called "filaments."' },
+              { id:'5-36', text:'Post-processing "Finishing" of a 3D print involves:', options:['A) Changing the digital file','B) Sanding, smoothing, or polishing to remove layer lines','C) Adding more resin to the object by hand','D) Freezing the object'], answer:'B', reason:'Even high-res prints have "stair-stepping" on the surface; mechanical finishing is needed for clinical smoothness.' },
+              { id:'5-37', text:'If a printer has a "Resolution" of 50 microns, it means:', options:['A) It can print 50 crowns per hour','B) It costs 50 dollars to run','C) The smallest feature or layer it can produce is 50 microns','D) It requires 50 liters of resin'], answer:'C', reason:'Resolution defines the level of detail or the smallest increment of material the printer can control.' },
+              { id:'5-38', text:'Biocompatibility of a 3D-printed resin is ONLY achieved:', options:['A) If it is printed in a green color','B) After proper washing and full UV post-curing','C) If the patient has no allergies to metal','D) If the printer is made of stainless steel'], answer:'B', reason:'Residual liquid monomers are toxic; they must be washed away and the rest fully polymerized (cured) to be safe for mouth use.' },
+              { id:'5-39', text:'3D-printed Complete Dentures are often created by:', options:['A) Printing the base and teeth separately and bonding them','B) Printing them out of a single block of wood','C) Forcing the patient to bite into liquid resin','D) Using a laser to melt the patient\'s old dentures'], answer:'A', reason:'Modern digital dentures usually involve printing a pink base and white teeth, then joining them, though monolithic printing is also emerging.' },
+              { id:'5-40', text:'Why is "Ventilation" important in a 3D printing room?', options:['A) To keep the printer from getting dusty','B) To remove chemical fumes/odors released by liquid resins','C) To help the laser move faster','D) To prevent the models from falling over'], answer:'B', reason:'Resins emit VOCs (Volatile Organic Compounds) that can be unpleasant or harmful over long exposure.' }
+            ]
+          }
+        ];
+
+        // --- APP COMPONENT ---
+        const App = () => {
+          const [view, setView] = useState('home');
+          const [activeQuiz, setActiveQuiz] = useState(null);
+          const [currentIndex, setCurrentIndex] = useState(0);
+          const [resumeModal, setResumeModal] = useState(null);
+          const [score, setScore] = useState(0);
+          const [xp, setXp] = useState(() => {
+            try { return Number(localStorage.getItem('dental_xp2')) || 0; } catch { return 0; }
+          });
+          const [streak, setStreak] = useState(0);
+          const [maxStreak, setMaxStreak] = useState(0);
+          const [powerUps, setPowerUps] = useState({ hints: 3, freezes: 2 });
+          const [isFrozen, setIsFrozen] = useState(false);
+          const [eliminatedIndices, setEliminatedIndices] = useState([]);
+          const [timeLeft, setTimeLeft] = useState(30);
+          const timerRef = useRef(null);
+          const [feedback, setFeedback] = useState(null);
+          const [xpGain, setXpGain] = useState(null);
+          const [typedMessage, setTypedMessage] = useState('');
+          const [messageToast, setMessageToast] = useState(null);
+          const [showBoss, setShowBoss] = useState(false);
+          const [showReason, setShowReason] = useState(false);
+
+          const welcomeText = "جميع الأسئلة تم إنشاؤها بواسطة الذكاء الاصطناعي... ماتنسوش تدعوا لـ";
+
+          useEffect(() => {
+            let i = 0;
+            const interval = setInterval(() => {
+              setTypedMessage(welcomeText.slice(0, i));
+              i++;
+              if (i > welcomeText.length) { clearInterval(interval); setShowBoss(true); }
+            }, 40);
+            return () => clearInterval(interval);
+          }, []);
+
+          useEffect(() => {
+            try { localStorage.setItem('dental_xp2', xp.toString()); } catch (e) {}
+          }, [xp]);
+
+          useEffect(() => {
+            if (view === 'quiz' && activeQuiz && feedback === null) {
+              const sessionState = { quizId: activeQuiz.id, currentIndex, score, streak, maxStreak, powerUps, questions: activeQuiz.questions };
+              localStorage.setItem('session_' + activeQuiz.id, JSON.stringify(sessionState));
+            }
+          }, [currentIndex, score, streak, activeQuiz, view, feedback]);
+
+          useEffect(() => {
+            if (view === 'quiz' && !isFrozen && feedback === null) {
+              timerRef.current = window.setInterval(() => {
+                setTimeLeft((prev) => {
+                  if (prev <= 1) { handleTimeOut(); return 30; }
+                  return prev - 1;
+                });
+              }, 1000);
+            } else { if (timerRef.current) clearInterval(timerRef.current); }
+            return () => { if (timerRef.current) clearInterval(timerRef.current); };
+          }, [view, currentIndex, isFrozen, feedback]);
+
+          const handleTimeOut = () => {
+            setFeedback('wrong');
+            setShowReason(true);
+            setStreak(0);
+            setMessageToast("Time's up! ⏳");
+            setTimeout(() => { setMessageToast(null); setFeedback(null); setShowReason(false); nextQuestion(); }, 3000);
+          };
+
+          const handleStartQuiz = (rawQuiz) => {
+            if (rawQuiz.isExternal) { window.open(rawQuiz.link, '_blank'); return; }
+            const saved = localStorage.getItem('session_' + rawQuiz.id);
+            if (saved) {
+              const parsedState = JSON.parse(saved);
+              setResumeModal({ rawQuiz, state: parsedState });
+            } else {
+              const shuffledQuiz = getShuffledQuiz(rawQuiz);
+              initiateQuiz(shuffledQuiz, 0, 0, 0, 0, { hints: 3, freezes: 2 });
+            }
+          };
+
+          const initiateQuiz = (shuffledQuiz, idx, sc, str, mstr, pUps) => {
+            setActiveQuiz(shuffledQuiz);
+            setCurrentIndex(idx);
+            setScore(sc);
+            setStreak(str);
+            setMaxStreak(mstr);
+            setPowerUps(pUps);
+            setTimeLeft(30);
+            setFeedback(null);
+            setShowReason(false);
+            setEliminatedIndices([]);
+            setResumeModal(null);
+            setView('quiz');
+          };
+
+          const clearSession = (id) => { localStorage.removeItem('session_' + id); };
+
+          const handleSelectAnswer = (optionLetter) => {
+            if (feedback) return;
+            const correct = activeQuiz && activeQuiz.questions[currentIndex] && activeQuiz.questions[currentIndex].answer === optionLetter;
+            setShowReason(true);
+            if (correct) {
+              setFeedback('correct');
+              setScore((s) => s + 1);
+              const newStreak = streak + 1;
+              setStreak(newStreak);
+              setMaxStreak(Math.max(maxStreak, newStreak));
+              const gain = 20 + (newStreak * 5);
+              setXpGain(gain);
+              setXp((prev) => prev + gain);
+              if (newStreak >= 3) setMessageToast('🔥 Streak ' + newStreak + '! UNSTOPPABLE!');
+              else setMessageToast("Bravo! Keep going! 💪");
+              confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 }, colors: ['#22c55e', '#16a34a', '#ffffff'] });
+            } else {
+              setFeedback('wrong');
+              setStreak(0);
+              setMessageToast("Wrong choice, but don't give up! 😉");
+            }
+            setTimeout(() => { setFeedback(null); setXpGain(null); setMessageToast(null); setShowReason(false); nextQuestion(); }, 3500);
+          };
+
+          const nextQuestion = () => {
+            if (!activeQuiz || !activeQuiz.questions) return;
+            if (currentIndex < activeQuiz.questions.length - 1) {
+              setCurrentIndex((c) => c + 1);
+              setTimeLeft(30);
+              setIsFrozen(false);
+              setEliminatedIndices([]);
+            } else {
+              clearSession(activeQuiz.id);
+              setView('result');
+            }
+          };
+
+          const use5050 = () => {
+            if (powerUps.hints <= 0 || feedback !== null || eliminatedIndices.length > 0) return;
+            const correctLetter = activeQuiz && activeQuiz.questions[currentIndex] && activeQuiz.questions[currentIndex].answer;
+            const options = ['A', 'B', 'C', 'D'];
+            const wrongOnes = options.filter(o => o !== correctLetter);
+            const toEliminate = wrongOnes.sort(() => 0.5 - Math.random()).slice(0, 2);
+            setEliminatedIndices(toEliminate.map(letter => options.indexOf(letter)));
+            setPowerUps(p => ({ ...p, hints: p.hints - 1 }));
+          };
+
+          const useFreeze = () => {
+            if (powerUps.freezes <= 0 || feedback !== null || isFrozen) return;
+            setIsFrozen(true);
+            setPowerUps(p => ({ ...p, freezes: p.freezes - 1 }));
+          };
+
+          const currentLevel = Math.floor(xp / 1000) + 1;
+          const progressToNextLevel = ((xp % 1000) / 1000) * 100;
+
+          const currentQuestion = activeQuiz && activeQuiz.questions && activeQuiz.questions[currentIndex];
+
+          return React.createElement('div', { className: "min-h-screen flex flex-col bg-[#F8FAFC] transition-colors duration-500 overflow-x-hidden" },
+            resumeModal && React.createElement('div', { className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" },
+              React.createElement('div', { className: "bg-white rounded-[2.5rem] p-10 max-w-lg w-full shadow-2xl border-4 border-green-100 text-center" },
+                React.createElement(RefreshCw, { className: "w-16 h-16 mx-auto mb-6 text-green-600" }),
+                React.createElement('h3', { className: "text-3xl font-black mb-4 tracking-tighter" }, "RESUME DRILL?"),
+                React.createElement('p', { className: "text-slate-500 mb-10 font-medium" }, 'You have an unfinished simulation for "' + resumeModal.rawQuiz.title + '" at question ' + (resumeModal.state.currentIndex + 1) + '.'),
+                React.createElement('div', { className: "flex flex-col gap-4" },
+                  React.createElement('button', {
+                    onClick: () => initiateQuiz({ ...resumeModal.rawQuiz, questions: resumeModal.state.questions }, resumeModal.state.currentIndex, resumeModal.state.score, resumeModal.state.streak, resumeModal.state.maxStreak, resumeModal.state.powerUps),
+                    className: "w-full py-5 bg-green-600 text-white rounded-2xl font-black text-xl hover:bg-green-700 hover:scale-105 active:scale-95 transition-all shadow-xl"
+                  }, "RESUME PROGRESS"),
+                  React.createElement('button', {
+                    onClick: () => { clearSession(resumeModal.rawQuiz.id); const shuffledQuiz = getShuffledQuiz(resumeModal.rawQuiz); initiateQuiz(shuffledQuiz, 0, 0, 0, 0, { hints: 3, freezes: 2 }); },
+                    className: "w-full py-5 bg-slate-100 text-slate-600 rounded-2xl font-black text-xl hover:bg-slate-200 transition-all"
+                  }, "START NEW DRILL")
+                )
+              )
+            ),
+
+            React.createElement('header', { className: "bg-white/95 backdrop-blur-md border-b-2 border-green-100 sticky top-0 z-50 shadow-md h-20" },
+              React.createElement('div', { className: "max-w-7xl mx-auto px-4 h-full flex items-center justify-between" },
+                React.createElement('div', { className: "flex items-center space-x-4 cursor-pointer group", onClick: () => setView('home') },
+                  React.createElement('div', { className: "w-12 h-12 bg-green-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200 group-hover:rotate-12 transition-boss" }, React.createElement(Stethoscope, { className: "w-7 h-7" })),
+                  React.createElement('div', null,
+                    React.createElement('h1', { className: "text-xl font-black text-slate-900 tracking-tighter uppercase leading-none" }, "THE ", React.createElement('span', { className: "text-green-600" }, "BOSS")),
+                    React.createElement('p', { className: "text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1" }, 'Academy Rank: ' + currentLevel)
+                  )
+                ),
+                React.createElement('div', { className: "flex items-center space-x-8" },
+                  React.createElement('div', { className: "hidden lg:flex flex-col items-end" },
+                    React.createElement('div', { className: "flex items-center space-x-2 mb-1" }, React.createElement(Zap, { className: "w-4 h-4 text-green-500" }), React.createElement('span', { className: "text-[10px] font-black text-slate-400" }, "XP PROGRESS")),
+                    React.createElement('div', { className: "w-40 h-3 bg-slate-100 rounded-full border border-green-50 overflow-hidden shadow-inner" },
+                      React.createElement('div', { className: "h-full bg-green-600 transition-boss", style: { width: progressToNextLevel + '%' } })
+                    )
+                  ),
+                  React.createElement('div', { className: "flex items-center space-x-3 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100" },
+                    React.createElement(Flame, { className: 'w-6 h-6 ' + (streak > 2 ? 'text-orange-500 animate-bounce' : 'text-slate-200') }),
+                    React.createElement('span', { className: "text-xl font-black text-slate-800" }, streak)
+                  )
+                )
+              )
+            ),
+
+            React.createElement('main', { className: "flex-grow max-w-7xl mx-auto w-full px-4 py-8 md:py-12" },
+              view === 'home' && React.createElement('div', { className: "space-y-12 animate-in fade-in zoom-in duration-700" },
+                React.createElement('div', { className: "relative overflow-hidden bg-white rounded-[3rem] p-8 md:p-16 border-4 border-white shadow-boss transition-boss" },
+                  React.createElement('div', { className: "absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-green-50/50 to-transparent -skew-x-12 pointer-events-none" }),
+                  React.createElement('div', { className: "relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center" },
+                    React.createElement('div', { className: "space-y-8" },
+                      React.createElement('div', { className: "inline-flex items-center space-x-3 px-5 py-2.5 bg-green-950 text-white rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-xl" }, React.createElement(Volume2, { className: "w-4 h-4 animate-pulse" }), React.createElement('span', null, "Academy Data Loaded")),
+                      React.createElement('h2', { className: "text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.85]" }, "The Art of ", React.createElement('br'), React.createElement('span', { className: "text-green-600 italic" }, "Fixed Prosthodontics")),
+                      React.createElement('div', { className: "pt-4" },
+                        React.createElement('div', { className: "flex items-start space-x-5" },
+                          React.createElement('div', { className: "w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center text-white shadow-lg shrink-0" }, React.createElement(Ghost, { className: "w-7 h-7 animate-bounce" })),
+                          React.createElement('div', { className: "bg-[#F1F5F9] border-2 border-white p-6 rounded-3xl rounded-tl-none shadow-xl max-w-md" },
+                            React.createElement('p', { className: "arabic-text text-green-900 font-bold text-xl md:text-2xl leading-relaxed text-right" },
+                              typedMessage,
+                              showBoss && React.createElement('span', { className: "block mt-2 text-5xl font-black tracking-tighter text-green-600 underline decoration-green-100 underline-offset-8" }, "Boss")
+                            )
+                          )
+                        )
+                      )
+                    ),
+                    React.createElement('div', { className: "grid grid-cols-2 gap-6" },
+                      [{ label: 'TOTAL ACADEMY XP', val: xp, icon: Zap, color: 'text-green-500' }, { label: 'PEAK RANK', val: currentLevel, icon: Star, color: 'text-yellow-500' }, { label: 'BEST STREAK', val: maxStreak, icon: Flame, color: 'text-orange-500' }, { label: 'MODULES', val: '5/5', icon: Award, color: 'text-purple-500' }].map((stat, i) =>
+                        React.createElement('div', { key: i, className: "bg-slate-50 p-8 rounded-[2.5rem] border-2 border-white shadow-inner flex flex-col items-center group hover:bg-white hover:shadow-2xl hover:scale-105 transition-boss" },
+                          React.createElement('div', { className: "p-3 bg-white rounded-2xl shadow-sm mb-4 transition-boss group-hover:rotate-12" }, React.createElement(stat.icon, { className: 'w-8 h-8 ' + stat.color })),
+                          React.createElement('span', { className: "text-3xl font-black text-slate-800 tracking-tight" }, stat.val),
+                          React.createElement('span', { className: "text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2" }, stat.label)
+                        )
+                      )
+                    )
+                  )
+                ),
+                React.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" },
+                  QUIZZES.map((quiz) =>
+                    React.createElement('div', { key: quiz.id, className: "group bg-white rounded-[2.5rem] p-10 border-2 border-transparent hover:border-green-400 hover:shadow-2xl transition-boss cursor-pointer flex flex-col relative overflow-hidden transform hover:-translate-y-4", onClick: () => handleStartQuiz(quiz) },
+                      React.createElement('div', { className: "w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-4xl mb-8 group-hover:bg-green-600 group-hover:text-white transition-boss group-hover:rotate-6" }, quiz.icon),
+                      React.createElement('h3', { className: "text-2xl font-black text-slate-800 mb-3 group-hover:text-green-600 transition-colors leading-tight" }, quiz.title),
+                      React.createElement('p', { className: "text-sm text-slate-400 flex-grow font-semibold leading-relaxed mb-6" }, quiz.description),
+                      React.createElement('div', { className: "flex items-center justify-between text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4" },
+                        React.createElement('span', null, quiz.questions.length + ' Qs')
+                      ),
+                      React.createElement('div', { className: "flex items-center justify-between border-t border-slate-50 pt-6" },
+                        React.createElement('span', { className: "text-[10px] font-black text-green-600 tracking-[0.2em] uppercase" }, quiz.isExternal ? 'OPEN PORTAL' : 'BEGIN DRILL'),
+                        React.createElement('div', { className: "w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-boss" }, React.createElement(ChevronRight, { className: "w-6 h-6" }))
+                      )
+                    )
+                  )
+                )
+              ),
+
+              view === 'quiz' && activeQuiz && activeQuiz.questions && React.createElement('div', { className: "max-w-4xl mx-auto animate-in slide-in-from-bottom duration-500" },
+                React.createElement('div', { className: "mb-8 flex flex-col md:flex-row items-center justify-between gap-6" },
+                  React.createElement('button', { onClick: () => setView('home'), className: "px-8 py-4 bg-white text-slate-900 rounded-2xl font-black hover:bg-slate-50 border-2 border-slate-100 shadow-sm transition-boss flex items-center group" }, React.createElement(ArrowLeft, { className: "w-5 h-5 mr-3 group-hover:-translate-x-1" }), "TERMINATE"),
+                  React.createElement('div', { className: "flex items-center space-x-4" },
+                    React.createElement('button', { onClick: use5050, disabled: powerUps.hints === 0 || feedback !== null || eliminatedIndices.length > 0, className: "flex items-center space-x-3 px-6 py-4 rounded-2xl font-black text-sm border-2 transition-boss shadow-sm bg-green-50 border-green-200 text-green-700 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed" }, React.createElement(Brain, { className: "w-5 h-5" }), React.createElement('span', null, '50/50 (' + powerUps.hints + ')')),
+                    React.createElement('button', { onClick: useFreeze, disabled: powerUps.freezes === 0 || feedback !== null || isFrozen, className: "flex items-center space-x-3 px-6 py-4 rounded-2xl font-black text-sm border-2 transition-boss shadow-sm bg-cyan-50 border-cyan-200 text-cyan-700 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed" }, React.createElement(Clock, { className: "w-5 h-5" }), React.createElement('span', null, 'FREEZE (' + powerUps.freezes + ')'))
+                  )
+                ),
+                React.createElement('div', { className: 'relative bg-white rounded-[3.5rem] shadow-boss border-4 transition-boss ' + (feedback === 'correct' ? 'border-green-400 correct-glow' : feedback === 'wrong' ? 'border-red-400 shake' : 'border-white') },
+                  messageToast && React.createElement('div', { className: "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 text-white px-10 py-4 rounded-3xl font-black text-lg shadow-2xl z-30 animate-in slide-in-from-top-12" }, messageToast),
+                  React.createElement('div', { className: "h-3 w-full bg-slate-100 relative rounded-t-[3.5rem] overflow-hidden" },
+                    React.createElement('div', { className: 'h-full transition-all duration-1000 ease-linear ' + (timeLeft < 10 ? 'fire-timer' : 'bg-green-600'), style: { width: (timeLeft / 30) * 100 + '%' } }),
+                    isFrozen && React.createElement('div', { className: "absolute inset-0 bg-cyan-400/30 backdrop-blur-[1px] flex items-center justify-center font-black text-white text-xs" }, "System Frozen")
+                  ),
+                  React.createElement('div', { className: "p-10 md:p-16 relative" },
+                    xpGain && React.createElement('div', { className: "absolute top-6 right-6 text-4xl font-black text-green-500 xp-float" }, '+' + xpGain + ' XP'),
+                    React.createElement('div', { className: "flex items-center space-x-4 mb-10" },
+                      React.createElement('div', { className: 'w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ' + (currentIndex >= activeQuiz.questions.length - 5 ? 'bg-red-600 text-white animate-pulse' : 'bg-green-600 text-white') }, currentIndex >= activeQuiz.questions.length - 5 ? React.createElement(Skull, { className: "w-6 h-6" }) : React.createElement(Zap, { className: "w-6 h-6" })),
+                      React.createElement('div', { className: "flex flex-col" },
+                        React.createElement('span', { className: 'text-[10px] font-black tracking-[0.2em] uppercase ' + (currentIndex >= activeQuiz.questions.length - 5 ? 'text-red-600' : 'text-green-600') }, currentIndex >= activeQuiz.questions.length - 5 ? 'BOSS BATTLE: THE FINAL 5' : 'Simulation Engine Phase'),
+                        React.createElement('span', { className: "text-slate-400 text-[10px] font-bold" }, 'Module: ' + activeQuiz.title)
+                      )
+                    ),
+                    React.createElement('h3', { className: "text-2xl md:text-3xl font-black text-slate-900 mb-12 tracking-tight leading-tight" }, currentQuestion.text),
+                    React.createElement('div', { className: "grid grid-cols-1 gap-5" },
+                      currentQuestion.options.map((option, idx) => {
+                        const letter = option.split(')')[0].trim().toUpperCase();
+                        const isEliminated = eliminatedIndices.includes(idx);
+                        const isUserCorrect = feedback === 'correct' && currentQuestion.answer === letter;
+                        const isShownCorrect = feedback === 'wrong' && currentQuestion.answer === letter;
+                        return React.createElement('button', { key: idx, disabled: feedback !== null || isEliminated, onClick: () => handleSelectAnswer(letter), className: 'w-full text-left p-8 rounded-3xl border-4 transition-boss flex items-center group relative overflow-hidden ' + (isEliminated ? 'opacity-10 pointer-events-none' : isUserCorrect ? 'border-green-500 bg-green-50 scale-[1.02]' : isShownCorrect ? 'border-green-500 bg-green-50/50 border-dashed' : 'border-slate-50 bg-slate-50 hover:border-green-600 active:scale-[0.98]') },
+                          React.createElement('div', { className: 'w-14 h-14 rounded-2xl flex items-center justify-center mr-8 font-black text-2xl shadow-sm ' + (isUserCorrect ? 'bg-green-500 text-white rotate-[360deg]' : 'bg-white text-slate-400 group-hover:bg-green-600 group-hover:text-white group-hover:rotate-6') }, letter),
+                          React.createElement('span', { className: 'text-xl font-bold ' + (isUserCorrect ? 'text-green-900' : 'text-slate-700') }, option.includes(')') ? option.substring(option.indexOf(')') + 1).trim() : option)
+                        );
+                      })
+                    ),
+                    showReason && currentQuestion.reason && React.createElement('div', { className: "reason-box mt-8 p-6 bg-emerald-50 border-2 border-green-200 rounded-2xl flex items-start space-x-4" },
+                      React.createElement(Info, { className: "w-6 h-6 text-green-600 shrink-0 mt-0.5" }),
+                      React.createElement('div', null,
+                        React.createElement('p', { className: "text-[10px] font-black text-green-600 uppercase tracking-widest mb-2" }, "Explanation"),
+                        React.createElement('p', { className: "text-slate-700 font-semibold leading-relaxed" }, currentQuestion.reason)
+                      )
+                    ),
+                    React.createElement('div', { className: "mt-12 flex flex-col md:flex-row items-center justify-between gap-10 border-t border-slate-100 pt-10" },
+                      React.createElement('div', { className: "flex flex-col items-center md:items-start" },
+                        React.createElement('span', { className: "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3" }, "Drill State"),
+                        React.createElement('div', { className: "flex space-x-1.5" }, activeQuiz.questions.map((_, i) => React.createElement('div', { key: i, className: 'h-2 w-5 rounded-full transition-boss ' + (i < currentIndex ? 'bg-green-600' : i === currentIndex ? 'bg-green-300 animate-pulse w-8' : 'bg-slate-100') })))
+                      ),
+                      React.createElement('div', { className: "flex items-center space-x-10" },
+                        React.createElement('div', { className: "text-right" }, React.createElement('span', { className: "block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" }, "Seconds"), React.createElement('span', { className: 'text-4xl font-black tabular-nums ' + (timeLeft < 10 ? 'text-red-500 animate-pulse' : 'text-slate-900') }, timeLeft)),
+                        React.createElement('div', { className: "h-12 w-px bg-slate-200" }),
+                        React.createElement('div', { className: "text-right" }, React.createElement('span', { className: "block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1" }, "Score"), React.createElement('span', { className: "text-4xl font-black text-green-600" }, score))
+                      )
+                    )
+                  )
+                )
+              ),
+
+              view === 'result' && activeQuiz && React.createElement('div', { className: "max-w-4xl mx-auto animate-in zoom-in duration-700" },
+                React.createElement('div', { className: "bg-white rounded-[4rem] shadow-2xl overflow-hidden border-4 border-white" },
+                  React.createElement('div', { className: "bg-gradient-to-br from-green-900 to-emerald-950 p-24 text-center text-white relative" },
+                    React.createElement(Trophy, { className: "w-32 h-32 mx-auto mb-10 text-yellow-400 animate-bounce" }),
+                    React.createElement('h2', { className: "text-6xl font-black mb-4 tracking-tighter uppercase" }, "Academy Legend!"),
+                    React.createElement('p', { className: "text-green-200 font-bold text-xl uppercase tracking-widest opacity-80" }, activeQuiz.title),
+                    React.createElement('div', { className: "mt-12 inline-flex items-center space-x-6 bg-white/10 px-10 py-5 rounded-[2.5rem] backdrop-blur-xl border border-white/20" }, React.createElement(Zap, { className: "w-8 h-8 text-yellow-300 fill-current" }), React.createElement('span', { className: "text-3xl font-black" }, '+' + (score * 25) + ' ACADEMY XP'))
+                  ),
+                  React.createElement('div', { className: "p-16 text-center bg-slate-50/30" },
+                    React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-4 gap-8 mb-16" },
+                      [{ l: 'CORRECT', v: score + '/' + (activeQuiz.questions ? activeQuiz.questions.length : 0), c: 'text-slate-900' }, { l: 'ACCURACY', v: Math.round((score / (activeQuiz.questions ? activeQuiz.questions.length : 1)) * 100) + '%', c: 'text-green-600' }, { l: 'PEAK STREAK', v: maxStreak, c: 'text-orange-500' }, { l: 'ACADEMY LVL', v: currentLevel, c: 'text-purple-600' }].map((stat, i) =>
+                        React.createElement('div', { key: i, className: "bg-white p-8 rounded-[2.5rem] border-2 border-white flex flex-col items-center shadow-lg shadow-green-50/50" }, React.createElement('span', { className: "text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4" }, stat.l), React.createElement('p', { className: 'text-4xl font-black tracking-tighter ' + stat.c }, stat.v))
+                      )
+                    ),
+                    React.createElement('div', { className: "flex flex-col md:flex-row items-center justify-center gap-6" },
+                      React.createElement('button', { onClick: () => { clearSession(activeQuiz.id); const shuffledQuiz = getShuffledQuiz(QUIZZES.find(q => q.id === activeQuiz.id)); initiateQuiz(shuffledQuiz, 0, 0, 0, 0, { hints: 3, freezes: 2 }); }, className: "w-full md:w-auto px-16 py-6 bg-green-600 text-white rounded-[2rem] font-black text-2xl hover:bg-green-700 hover:scale-105 transition-all shadow-2xl" }, "RE-SIMULATE"),
+                      React.createElement('button', { onClick: () => setView('home'), className: "w-full md:w-auto px-16 py-6 bg-white text-slate-600 rounded-[2rem] font-black text-2xl border-2 border-slate-200" }, "DASHBOARD")
+                    )
+                  )
+                )
+              )
+            ),
+
+            React.createElement('footer', { className: "py-24 text-center" },
+              React.createElement('div', { className: "flex justify-center items-center space-x-4 mb-6 group cursor-pointer", onClick: () => setView('home') },
+                React.createElement('div', { className: "w-14 h-14 bg-slate-950 rounded-2xl flex items-center justify-center text-white font-black text-2xl group-hover:bg-green-600 transition-boss shadow-xl" }, "B"),
+                React.createElement('span', { className: "text-4xl font-black text-slate-900 tracking-tighter uppercase group-hover:text-green-600 transition-colors" }, "Boss")
+              ),
+              React.createElement('p', { className: "text-slate-400 font-bold uppercase tracking-[0.5em] text-[12px] mb-12" }, "Dental Materials Mastery Platform"),
+              React.createElement('div', { className: "flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-12 text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] border-t-2 border-slate-100 pt-16 max-w-2xl mx-auto" },
+                React.createElement('span', null, "© ACADEMY 2025"),
+                React.createElement('span', { className: "hidden md:inline w-2 h-2 bg-slate-200 rounded-full" }),
+                React.createElement('span', null, "OFFLINE DATA ENGINE"),
+                React.createElement('span', { className: "hidden md:inline w-2 h-2 bg-slate-200 rounded-full" }),
+                React.createElement('span', null, "DESIGNED BY THE BOSS")
+              )
+            )
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
